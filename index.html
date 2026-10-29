@@ -2,853 +2,736 @@
 <html lang="ru" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Director Studio — Cinematography AI Protocol</title>
-  <!-- Tailwind CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Director Studio Pro — Apple Edition</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
           colors: {
-            noir: {
-              950: '#070809',
-              900: '#0E1013',
-              850: '#14171C',
-              800: '#1B2028',
-              750: '#222834',
-              700: '#2E3544',
-              600: '#434D61',
-              400: '#8A94A6',
-              300: '#BAC3D2',
-              200: '#E1E6EE',
-              100: '#F5F7FA'
-            },
-            accent: {
-              cyan: '#38BDF8',
-              amber: '#F59E0B',
-              emerald: '#10B981',
-              violet: '#818CF8'
+            apple: {
+              black: '#000000',
+              space: '#0b0c0e',
+              card: 'rgba(28, 28, 30, 0.72)',
+              cardHover: 'rgba(44, 44, 46, 0.85)',
+              border: 'rgba(255, 255, 255, 0.1)',
+              borderActive: 'rgba(10, 132, 255, 0.65)',
+              blue: '#0A84FF',
+              blueGlow: 'rgba(10, 132, 255, 0.18)',
+              secondary: '#8E8E93',
+              gold: '#FFD60A'
             }
           },
-          animation: {
-            'glow-pulse': 'glowPulse 3s ease-in-out infinite',
-            'radar-spin': 'radarSpin 8s linear infinite'
-          },
-          keyframes: {
-            glowPulse: {
-              '0%, 100%': { opacity: '0.4' },
-              '50%': { opacity: '0.9' }
-            },
-            radarSpin: {
-              '0%': { transform: 'rotate(0deg)' },
-              '100%': { transform: 'rotate(360deg)' }
-            }
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'system-ui', 'sans-serif']
           }
         }
       }
     }
   </script>
-
   <style>
-    /* Smooth glass & edge glows */
-    .glass-panel {
-      background: rgba(14, 16, 19, 0.75);
+    body {
+      background-color: #000000;
+      color: #F5F5F7;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .glass-card {
+      background: rgba(28, 28, 30, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+    }
+    .option-card {
+      background: rgba(38, 38, 42, 0.55);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .active-chip {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.28) !important;
-      color: #F5F7FA !important;
-      box-shadow: 0 0 16px -3px rgba(255, 255, 255, 0.12);
+    .option-card:active {
+      transform: scale(0.975);
     }
-    .active-tab {
-      background: #1B2028 !important;
-      color: #F5F7FA !important;
-      border: 1px solid rgba(255, 255, 255, 0.2) !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    .option-card.active {
+      background: rgba(10, 132, 255, 0.14);
+      border-color: rgba(10, 132, 255, 0.75);
+      box-shadow: 0 0 20px rgba(10, 132, 255, 0.22), inset 0 0 0 1px rgba(10, 132, 255, 0.5);
     }
-    /* Sleek range slider */
+    .option-card.active .icon-box {
+      color: #0A84FF;
+      background: rgba(10, 132, 255, 0.2);
+    }
+    .option-card.active .title-text {
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+    .apple-btn {
+      background: #0A84FF;
+      color: #FFFFFF;
+      border-radius: 14px;
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .apple-btn:active {
+      transform: scale(0.98);
+      background: #0071E3;
+    }
     input[type=range] {
-      -webkit-appearance: none;
-      background: transparent;
+      accent-color: #0A84FF;
     }
-    input[type=range]::-webkit-slider-runnable-track {
-      height: 4px;
-      background: #222834;
-      border-radius: 2px;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 16px;
-      width: 16px;
-      border-radius: 50%;
-      background: #F5F7FA;
-      margin-top: -6px;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-      transition: transform 0.1s ease;
-    }
-    input[type=range]::-webkit-slider-thumb:active {
-      transform: scale(1.25);
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 4px;
-      height: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #2E3544;
-      border-radius: 3px;
+    ::-webkit-scrollbar {
+      display: none;
     }
   </style>
 </head>
+<body class="p-3 pb-24 max-w-xl mx-auto min-h-screen">
 
-<body class="bg-noir-950 text-noir-200 font-sans antialiased min-h-screen selection:bg-noir-750 selection:text-white pb-36">
-
-  <!-- Ambient Cinematic Background Glows -->
-  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-    <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[480px] h-[340px] bg-noir-800/40 rounded-full blur-[120px]"></div>
-    <div class="absolute bottom-12 right-0 w-[280px] h-[280px] bg-accent-cyan/5 rounded-full blur-[90px]"></div>
-  </div>
-
-  <div class="relative z-10 max-w-lg mx-auto px-4 pt-4 flex flex-col min-h-screen">
-
-    <!-- Top Navigation & Language / Stars Controls -->
-    <header class="flex items-center justify-between pb-3.5 border-b border-noir-800/70 mb-4">
-      <div class="flex items-center space-x-2.5">
-        <div class="relative w-8 h-8 rounded-lg bg-noir-850 border border-noir-700/80 flex items-center justify-center text-noir-100 shadow-inner">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <path d="m14.3 8 5.7 9.9"></path>
-            <path d="M9.7 8h11.5"></path>
-            <path d="m7.4 12 5.7-9.9"></path>
-            <path d="M9.7 16 4 6.1"></path>
-            <path d="M14.3 16H2.8"></path>
-            <path d="m16.6 12-5.7 9.9"></path>
-          </svg>
-          <span class="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 animate-glow-pulse"></span>
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-xs font-semibold tracking-wider text-noir-100 uppercase">Director Studio</span>
-            <span class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-noir-800 border border-noir-700 text-noir-400">MK-IV</span>
-          </div>
-          <p class="text-[10px] font-mono text-noir-400" data-i18n="subtitle">Cinematographic Latent Protocol</p>
-        </div>
-      </div>
-
-      <!-- Controls: Lang Switch + Stars Pill -->
-      <div class="flex items-center gap-2">
-        <!-- Language Switcher Pill -->
-        <div class="flex items-center p-0.5 rounded-md bg-noir-900 border border-noir-800 text-[10px] font-mono">
-          <button id="langRuBtn" class="px-2 py-0.5 rounded transition font-medium text-noir-100 bg-noir-800">RU</button>
-          <button id="langEnBtn" class="px-2 py-0.5 rounded transition font-medium text-noir-400 hover:text-noir-200">EN</button>
-        </div>
-
-        <!-- Stars Counter Button -->
-        <button onclick="openStarsModal()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-noir-900 border border-noir-800 hover:border-noir-700 transition active:scale-95">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-          <span class="text-[11px] font-mono text-noir-100" id="starsBalanceDisplay">50 XTR</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Model Switcher (Tabs) -->
-    <section class="mb-4">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-[10px] font-mono uppercase tracking-widest text-noir-400" data-i18n="lblTargetModel">Target Synthesis Model</span>
-        <span class="text-[10px] font-mono text-noir-400" id="modelSpec">Kling 1.5 // 4K 60fps Cinema</span>
-      </div>
-
-      <div class="grid grid-cols-6 gap-1" id="modelTabs">
-        <button data-model="kling" class="model-tab active-tab px-1.5 py-2 rounded-md bg-noir-900 border border-noir-800 text-center transition">
-          <span class="block text-[10px] font-medium leading-none">Kling</span>
-          <span class="block text-[8px] font-mono text-noir-400 mt-1">1.5 Pro</span>
-        </button>
-        <button data-model="runway" class="model-tab px-1.5 py-2 rounded-md bg-noir-900 border border-noir-800 text-center text-noir-400 hover:text-noir-200 transition">
-          <span class="block text-[10px] font-medium leading-none">Runway</span>
-          <span class="block text-[8px] font-mono text-noir-400 mt-1">Gen-3</span>
-        </button>
-        <button data-model="flux" class="model-tab px-1.5 py-2 rounded-md bg-noir-900 border border-noir-800 text-center text-noir-400 hover:text-noir-200 transition">
-          <span class="block text-[10px] font-medium leading-none">Flux</span>
-          <span class="block text-[8px] font-mono text-noir-400 mt-1">1.1 Pro</span>
-        </button>
-        <button data-model="sora" class="model-tab px-1.5 py-2 rounded-md bg-noir-900 border border-noir-800 text-center text-noir-400 hover:text-noir-200 transition">
-          <span class="block text-[10px] font-medium leading-none">Sora</span>
-          <span class="block text-[8px] font-mono text-noir-400 mt-1">Render</span>
-        </button>
-        <button data-model="luma" class="model-tab px-1.5 py-2 rounded-md bg-noir-900 border border-noir-800 text-center text-noir-400 hover:text-noir-200 transition">
-          <span class="block text-[10px] font-medium leading-none">Luma</span>
-          <span class="block text-[8px] font-mono text-noir-400 mt-1">Ray 1.6</span>
-        </button>
-        <button data-model="midjourney" class="model-tab px-1.5 py-2 rounded-md bg-noir-900 border border-noir-800 text-center text-noir-400 hover:text-noir-200 transition">
-          <span class="block text-[10px] font-medium leading-none">MJ v6</span>
-          <span class="block text-[8px] font-mono text-noir-400 mt-1">Raw</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- Narrative Directive Input -->
-    <section class="mb-4">
-      <div class="flex items-center justify-between mb-1.5">
-        <label class="text-[10px] font-mono uppercase tracking-widest text-noir-400" data-i18n="lblNarrative">Scene Action & Core Subject</label>
-        <button id="randomPromptBtn" class="text-[10px] font-mono text-noir-300 hover:text-noir-100 flex items-center gap-1 transition">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-          <span data-i18n="btnRandomPreset">Случайный сетап</span>
-        </button>
-      </div>
-
-      <div class="glass-panel rounded-lg p-3 border border-noir-800 focus-within:border-noir-600 transition">
-        <textarea 
-          id="corePromptInput" 
-          rows="3" 
-          placeholder="Опишите сцену своими словами (например: кибер-курьер под проливным дождём в переулке Токио)..." 
-          class="w-full bg-transparent text-xs text-noir-100 placeholder-noir-600 focus:outline-none resize-none font-sans leading-relaxed"
-        ></textarea>
-        
-        <div class="flex items-center justify-between pt-2 mt-1 border-t border-noir-850 text-[10px] font-mono text-noir-400">
-          <span id="charCount">0 ch</span>
-          <span class="flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-accent-cyan"></span>
-            <span data-i18n="statusLatentReady">Prompt Engine Ready</span>
-          </span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Cinematography Control Deck -->
-    <section class="space-y-4 mb-5">
-      
-      <!-- Shot Composition & Angle -->
-      <div>
-        <div class="text-[10px] font-mono uppercase tracking-widest text-noir-400 mb-1.5" data-i18n="secComposition">Framing & Angle</div>
-        <div class="grid grid-cols-2 gap-1.5" id="compositionGrid">
-          <button data-cat="composition" data-key="comp1" class="chip-btn active-chip text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono transition">Low-Angle Heroic 45°</button>
-          <button data-cat="composition" data-key="comp2" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Macro Extreme Close-Up</button>
-          <button data-cat="composition" data-key="comp3" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Wide Architectural Establishing</button>
-          <button data-cat="composition" data-key="comp4" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Dynamic Dutch Tilt Angle</button>
-        </div>
-      </div>
-
-      <!-- Optics & Sensor Format -->
-      <div>
-        <div class="text-[10px] font-mono uppercase tracking-widest text-noir-400 mb-1.5" data-i18n="secOptics">Optics & Sensor Gate</div>
-        <div class="grid grid-cols-2 gap-1.5" id="opticsGrid">
-          <button data-cat="optics" data-key="opt1" class="chip-btn active-chip text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono transition">Cooke Anamorphic 35mm (IMAX 70mm)</button>
-          <button data-cat="optics" data-key="opt2" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Arri Master Prime 50mm T1.3 (Super 35)</button>
-          <button data-cat="optics" data-key="opt3" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Leica Noctilux 75mm f/1.25 (Full Frame)</button>
-          <button data-cat="optics" data-key="opt4" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Vintage 16mm Bolex Switar (Heavy Grain)</button>
-        </div>
-      </div>
-
-      <!-- Motion Vector & Speed Dynamic -->
-      <div>
-        <div class="text-[10px] font-mono uppercase tracking-widest text-noir-400 mb-1.5" data-i18n="secMovement">Camera Movement & Easing</div>
-        <div class="grid grid-cols-2 gap-1.5" id="movementGrid">
-          <button data-cat="movement" data-key="mov1" class="chip-btn active-chip text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono transition">Slow-Motion 120fps Smooth Push-in</button>
-          <button data-cat="movement" data-key="mov2" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">360° Orbital Steadicam Tracking</button>
-          <button data-cat="movement" data-key="mov3" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Hyperlapse High-Speed Motion Blur</button>
-          <button data-cat="movement" data-key="mov4" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Organic Handheld Natural Breathing</button>
-        </div>
-      </div>
-
-      <!-- Weather & Atmosphere Rig -->
-      <div>
-        <div class="text-[10px] font-mono uppercase tracking-widest text-noir-400 mb-1.5" data-i18n="secAtmosphere">Weather & Volumetrics</div>
-        <div class="grid grid-cols-2 gap-1.5" id="atmosphereGrid">
-          <button data-cat="atmosphere" data-key="atm1" class="chip-btn active-chip text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono transition">Heavy Rain, Neon Reflections, Wet Asphalt</button>
-          <button data-cat="atmosphere" data-key="atm2" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Dense Volumetric Mist & God Rays</button>
-          <button data-cat="atmosphere" data-key="atm3" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Cyber Sodium-Vapor Smog & Sparks</button>
-          <button data-cat="atmosphere" data-key="atm4" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Crisp Sub-Zero Blizzard & Floating Frost</button>
-        </div>
-      </div>
-
-      <!-- Time of Day & Palette Grade -->
-      <div>
-        <div class="text-[10px] font-mono uppercase tracking-widest text-noir-400 mb-1.5" data-i18n="secLighting">Time of Day & Color Chemistry</div>
-        <div class="grid grid-cols-2 gap-1.5" id="lightingGrid">
-          <button data-cat="lighting" data-key="lig1" class="chip-btn active-chip text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono transition">Magic Hour Golden Sun Rim (3200K)</button>
-          <button data-cat="lighting" data-key="lig2" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Blue Hour Cold Twilight Ambient</button>
-          <button data-cat="lighting" data-key="lig3" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Kodak Vision3 500T 8:1 Contrast Ratio</button>
-          <button data-cat="lighting" data-key="lig4" class="chip-btn text-left p-2 rounded-md bg-noir-900 border border-noir-800 text-[11px] font-mono text-noir-400 transition">Bleach Bypass Stark Industrial Monochrome</button>
-        </div>
-      </div>
-
-      <!-- Fine Sliders & Seed (Intensity & Aspect Ratio) -->
-      <div class="glass-panel p-3 rounded-lg border border-noir-800 space-y-3">
-        <!-- Motion Intensity Slider -->
-        <div>
-          <div class="flex items-center justify-between text-[10px] font-mono text-noir-400 mb-1">
-            <span data-i18n="lblMotionIntensity">Dynamic Motion Magnitude</span>
-            <span id="motionIntensityVal" class="text-noir-100 font-semibold">Level 7 / 10</span>
-          </div>
-          <input id="motionSlider" type="range" min="1" max="10" value="7" class="w-full">
-        </div>
-
-        <!-- Aspect Ratio Pills & Seed Input -->
-        <div class="flex items-center justify-between gap-3 pt-1 border-t border-noir-850">
-          <div class="flex items-center gap-1" id="aspectRatios">
-            <button data-ar="16:9" class="ar-btn active-chip px-2 py-1 rounded bg-noir-900 border border-noir-800 text-[10px] font-mono">16:9</button>
-            <button data-ar="9:16" class="ar-btn px-2 py-1 rounded bg-noir-900 border border-noir-800 text-[10px] font-mono text-noir-400 hover:text-noir-200">9:16</button>
-            <button data-ar="2.39:1" class="ar-btn px-2 py-1 rounded bg-noir-900 border border-noir-800 text-[10px] font-mono text-noir-400 hover:text-noir-200">2.39:1</button>
-            <button data-ar="1:1" class="ar-btn px-2 py-1 rounded bg-noir-900 border border-noir-800 text-[10px] font-mono text-noir-400 hover:text-noir-200">1:1</button>
-          </div>
-
-          <div class="flex items-center gap-1.5">
-            <span class="text-[9px] font-mono text-noir-400 uppercase">Seed</span>
-            <input id="seedInput" type="text" placeholder="Random" class="w-20 bg-noir-950 border border-noir-800 px-2 py-1 rounded text-[10px] font-mono text-noir-200 focus:outline-none focus:border-noir-600 text-center">
-          </div>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- Master Action CTA Button -->
-    <div class="mb-5">
-      <button id="generateBtn" class="group relative w-full py-3.5 px-4 rounded-lg bg-gradient-to-r from-noir-100 to-noir-200 text-noir-950 font-semibold text-xs tracking-wider uppercase flex items-center justify-center gap-2 shadow-lg shadow-white/5 hover:opacity-95 active:scale-[0.99] transition duration-150">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="transition-transform group-hover:rotate-45">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+  <!-- Apple Header Bar -->
+  <header class="glass-card p-3.5 mb-3 flex items-center justify-between sticky top-2 z-30 shadow-2xl">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white border border-white/10 shadow-inner">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
         </svg>
-        <span data-i18n="btnCompile">Скомпилировать Мастер-Промпт</span>
-        <span class="text-[10px] font-mono opacity-60 ml-1">// 1 XTR</span>
-      </button>
+      </div>
+      <div>
+        <h1 class="text-sm font-semibold tracking-tight text-white flex items-center gap-1.5">
+          <span>Director Pro</span>
+          <span class="text-[10px] tracking-wide uppercase px-1.5 py-0.5 rounded-full bg-white/10 text-zinc-300 font-mono">v4.2</span>
+        </h1>
+        <p class="text-[11px] text-zinc-400" id="subHeader">Cinematic Latent Director</p>
+      </div>
     </div>
 
-    <!-- Generated Prompt Output Workspace -->
-    <section id="resultCard" class="hidden glass-panel rounded-lg border border-noir-750 p-4 mb-6 space-y-3.5">
-      <div class="flex items-center justify-between pb-2 border-b border-noir-800">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span class="text-[10px] font-mono uppercase tracking-widest text-noir-100" id="outputBadge">KLING PRO DIRECTIVE</span>
-        </div>
-        <span class="text-[9px] font-mono text-noir-400" id="tokenEstimate">~72 tokens</span>
+    <!-- Controls Right (RU/EN & Stars) -->
+    <div class="flex items-center gap-2">
+      <!-- Lang Switcher -->
+      <div class="flex bg-white/10 p-0.5 rounded-xl border border-white/5 text-xs font-medium">
+        <button id="langRU" onclick="setLang('RU')" class="px-2.5 py-1 rounded-lg bg-white/20 text-white transition-all">RU</button>
+        <button id="langEN" onclick="setLang('EN')" class="px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition-all">EN</button>
       </div>
 
-      <!-- Master Prompt Output Container -->
-      <div class="relative group">
-        <div id="masterPromptOutput" class="bg-noir-950/80 p-3.5 rounded-md border border-noir-850 font-mono text-xs text-noir-100 leading-relaxed break-words select-all">
-          ...
-        </div>
-        <button id="copyPromptBtn" class="absolute top-2 right-2 p-1.5 rounded bg-noir-800/80 hover:bg-noir-700 text-noir-200 hover:text-white border border-noir-700 text-[10px] font-mono flex items-center gap-1 transition">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-          <span data-i18n="btnCopy">Copy</span>
-        </button>
+      <!-- Telegram Stars Counter -->
+      <div onclick="openStarsModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold cursor-pointer active:scale-95 transition-transform">
+        <svg class="w-3.5 h-3.5 fill-current text-amber-400" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+        <span id="starsBalance">50</span>
+        <span class="text-[10px] opacity-75">XTR</span>
       </div>
+    </div>
+  </header>
 
-      <!-- Sequence & Negative Buttons -->
-      <div class="flex items-center gap-2">
-        <button id="toggleSeqBtn" class="flex-1 py-2 px-3 rounded bg-noir-900 hover:bg-noir-850 border border-noir-800 text-[11px] font-mono text-noir-300 hover:text-white flex items-center justify-center gap-1.5 transition">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-          <span data-i18n="btnSequence">3-Кадровая Раскадровка</span>
-        </button>
-        <button id="copyNegativeBtn" class="py-2 px-3 rounded bg-noir-900 hover:bg-noir-850 border border-noir-800 text-[11px] font-mono text-noir-400 hover:text-noir-200 transition">
-          <span data-i18n="btnCopyNegative">Copy Negative</span>
-        </button>
-      </div>
-
-      <!-- 3-Shot Sequence Breakdown Tray -->
-      <div id="sequenceTray" class="hidden space-y-2 pt-2 border-t border-noir-850">
-        <div class="text-[10px] font-mono uppercase tracking-widest text-noir-400" data-i18n="lblSequenceBeats">Continuous Visual Beats</div>
-        <div class="space-y-1.5 font-mono text-[11px]">
-          <div class="p-2.5 rounded bg-noir-950 border border-noir-850">
-            <span class="text-[9px] text-accent-cyan block mb-0.5">BEAT 01 // INITIATION</span>
-            <span class="text-noir-200" id="seqBeat1">...</span>
-          </div>
-          <div class="p-2.5 rounded bg-noir-950 border border-noir-850">
-            <span class="text-[9px] text-accent-amber block mb-0.5">BEAT 02 // DYNAMICS</span>
-            <span class="text-noir-200" id="seqBeat2">...</span>
-          </div>
-          <div class="p-2.5 rounded bg-noir-950 border border-noir-850">
-            <span class="text-[9px] text-accent-violet block mb-0.5">BEAT 03 // RESOLUTION</span>
-            <span class="text-noir-200" id="seqBeat3">...</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Sleek Bottom Bar / Stars Wallet Info -->
-    <footer class="mt-auto pt-4 border-t border-noir-850">
-      <div onclick="openStarsModal()" class="cursor-pointer glass-panel p-3 rounded-lg border border-noir-800/80 hover:border-noir-700 transition flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-6 h-6 rounded bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-          </div>
-          <div>
-            <div class="text-xs font-semibold text-noir-100 flex items-center gap-1.5">
-              <span>Telegram Stars Pay</span>
-              <span class="text-[9px] font-mono px-1 py-0.2 rounded bg-noir-800 text-noir-400">API ACTIVE</span>
-            </div>
-            <div class="text-[10px] font-mono text-noir-400" data-i18n="footerStarsDesc">Купить XTR пакеты или пополнить баланс</div>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="text-xs font-mono text-amber-400 font-semibold" id="footerStarsCount">50 XTR</span>
-          <span class="block text-[9px] font-mono text-noir-400" data-i18n="footerTopUp">Пополнить &rarr;</span>
-        </div>
-      </div>
-      <div class="text-center text-[9px] font-mono text-noir-600 mt-3 uppercase tracking-widest">Linear Pro Interface // Teenage Precision</div>
-    </footer>
-
+  <!-- Engine Segmented Control -->
+  <div class="glass-card p-2.5 mb-3">
+    <div class="text-[11px] font-medium tracking-wide text-zinc-400 uppercase mb-2 px-1 flex justify-between">
+      <span data-i18n="engine_label">Целевой нейродвижок</span>
+      <span class="text-zinc-500 text-[10px]">Optimal Config</span>
+    </div>
+    <div class="grid grid-cols-3 gap-1.5 bg-black/40 p-1 rounded-2xl border border-white/5" id="engineGrid">
+      <button onclick="selectEngine('kling')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all bg-white/15 text-white shadow-sm" data-engine="kling">
+        <div class="font-semibold">Kling 1.5</div>
+        <div class="text-[9px] text-zinc-400">Motion Master</div>
+      </button>
+      <button onclick="selectEngine('runway')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="runway">
+        <div class="font-semibold">Runway Gen-3</div>
+        <div class="text-[9px] text-zinc-400">Camera Control</div>
+      </button>
+      <button onclick="selectEngine('flux')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="flux">
+        <div class="font-semibold">Flux 1.1 Pro</div>
+        <div class="text-[9px] text-zinc-400">Photoreal Detail</div>
+      </button>
+      <button onclick="selectEngine('sora')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="sora">
+        <div class="font-semibold">Sora Engine</div>
+        <div class="text-[9px] text-zinc-400">Complex Physics</div>
+      </button>
+      <button onclick="selectEngine('luma')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="luma">
+        <div class="font-semibold">Luma Ray 2</div>
+        <div class="text-[9px] text-zinc-400">Volumetric World</div>
+      </button>
+      <button onclick="selectEngine('midjourney')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="midjourney">
+        <div class="font-semibold">Midjourney v6.1</div>
+        <div class="text-[9px] text-zinc-400">Stylized Lighting</div>
+      </button>
+    </div>
   </div>
 
-  <!-- Telegram Stars Payment & Top-Up Modal -->
-  <div id="starsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="glass-panel max-w-md w-full rounded-xl border border-noir-700 p-5 space-y-4">
-      <div class="flex items-center justify-between pb-3 border-b border-noir-800">
-        <div class="flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-amber-400">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-          <span class="text-xs font-semibold text-noir-100 uppercase tracking-wider" data-i18n="modalTitle">Пополнение Telegram Stars (XTR)</span>
+  <!-- Prompt Input Area -->
+  <div class="glass-card p-3 mb-3">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-[11px] font-medium tracking-wide text-zinc-400 uppercase" data-i18n="subject_title">Сюжет и действие</span>
+      <button onclick="randomizePrompt()" class="text-[11px] text-apple-blue flex items-center gap-1 active:opacity-75">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span data-i18n="random_idea">Случайная сцена</span>
+      </button>
+    </div>
+    <textarea id="promptSubject" rows="2" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-apple-blue resize-none transition-colors" placeholder="Опишите сцену своими словами (например: пилот в стеклянном шлеме смотрит на вспышку сверхновой в иллюминаторе)..."></textarea>
+  </div>
+
+  <!-- SECTIONS: Apple Grid of Cards with Icons and Subtitles -->
+
+  <!-- 1. Framing & Angle -->
+  <div class="glass-card p-3 mb-3">
+    <div class="flex items-center gap-2 mb-2.5">
+      <div class="w-5 h-5 rounded-md bg-apple-blue/20 flex items-center justify-center text-apple-blue">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_framing">Ракурс и План</h2>
+    </div>
+    <div class="grid grid-cols-2 gap-2" id="group-framing">
+      <!-- Card 1 -->
+      <div onclick="toggleCard(this, 'framing')" data-value="Low-Angle Heroic 45°" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
         </div>
-        <button onclick="closeStarsModal()" class="text-noir-400 hover:text-white p-1">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-white truncate font-medium">Low-Angle Hero</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_low_angle">Взгляд снизу вверх, подчеркивает масштаб и доминирование</div>
+        </div>
+      </div>
+      <!-- Card 2 -->
+      <div onclick="toggleCard(this, 'framing')" data-value="Macro Extreme Close-Up" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Extreme Macro</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_macro">Сверхкрупный план: зрачок глаза, текстура кожи или металла</div>
+        </div>
+      </div>
+      <!-- Card 3 -->
+      <div onclick="toggleCard(this, 'framing')" data-value="Wide Establishing Shot" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Wide Establishing</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_wide">Широкий план всей локации, раскрывает мир и окружение</div>
+        </div>
+      </div>
+      <!-- Card 4 -->
+      <div onclick="toggleCard(this, 'framing')" data-value="Dynamic Dutch Tilt 15°" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l16 16M4 20L20 4"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Dutch Angle Tilt</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_dutch">Наклон горизонта по диагонали, создает напряжение и драйв</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Optics & Camera Sensor -->
+  <div class="glass-card p-3 mb-3">
+    <div class="flex items-center gap-2 mb-2.5">
+      <div class="w-5 h-5 rounded-md bg-amber-400/20 flex items-center justify-center text-amber-300">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
+      </div>
+      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_optics">Камера и Оптика</h2>
+    </div>
+    <div class="grid grid-cols-2 gap-2" id="group-optics">
+      <!-- Lens 1 -->
+      <div onclick="toggleCard(this, 'optics')" data-value="Cooke Anamorphic 35mm (IMAX 70mm)" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-white truncate font-medium">Cooke Anamorphic</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_anamorphic">Голливудские синие овальные блики и мягкое боке</div>
+        </div>
+      </div>
+      <!-- Lens 2 -->
+      <div onclick="toggleCard(this, 'optics')" data-value="Arri Master Prime 50mm T1.3 (Super 35)" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" stroke-width="2"/><path d="M12 9v6M9 12h6"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Arri Prime 50mm</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_arri">Максимальная резкость деталей и киношная глубина резкости</div>
+        </div>
+      </div>
+      <!-- Lens 3 -->
+      <div onclick="toggleCard(this, 'optics')" data-value="Leica Noctilux 75mm f/1.25" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Leica Noctilux</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_leica">Шелковистое размытие фона и премиальные портретные тона</div>
+        </div>
+      </div>
+      <!-- Lens 4 -->
+      <div onclick="toggleCard(this, 'optics')" data-value="Vintage 16mm Bolex Switar (Heavy Grain)" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="16" r="1.5"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Vintage 16mm Grain</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_grain">Теплое аналоговое зерно ретро-пленки 70-х годов</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Camera Movement & Physics -->
+  <div class="glass-card p-3 mb-3">
+    <div class="flex items-center gap-2 mb-2.5">
+      <div class="w-5 h-5 rounded-md bg-emerald-400/20 flex items-center justify-center text-emerald-400">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      </div>
+      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_movement">Движение Камеры</h2>
+    </div>
+    <div class="grid grid-cols-2 gap-2" id="group-movement">
+      <!-- Move 1 -->
+      <div onclick="toggleCard(this, 'movement')" data-value="Smooth Forward Dolly Push" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-white truncate font-medium">Dolly Push-In</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_dolly">Плавный наезд камеры на главный объект без рывков</div>
+        </div>
+      </div>
+      <!-- Move 2 -->
+      <div onclick="toggleCard(this, 'movement')" data-value="Orbital Steadicam 360°" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Orbital 360°</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_orbital">Вращение вокруг персонажа со стабилизацией стедикама</div>
+        </div>
+      </div>
+      <!-- Move 3 -->
+      <div onclick="toggleCard(this, 'movement')" data-value="FPV Drone High-Speed Dive" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">FPV Dive</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_fpv">Стремительное пикирование дрона сверху сквозь преграды</div>
+        </div>
+      </div>
+      <!-- Move 4 -->
+      <div onclick="toggleCard(this, 'movement')" data-value="Dolly Zoom Vertigo Effect" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Vertigo Effect</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_vertigo">Эффект Хичкока: искажение перспективы заднего фона</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Motion Slider -->
+    <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between gap-3">
+      <div class="text-[11px] text-zinc-400 font-medium">
+        <span data-i18n="motion_slider">Интенсивность динамики:</span>
+        <span id="motionVal" class="text-apple-blue font-bold ml-1">6 / 10</span>
+      </div>
+      <input type="range" id="motionRange" min="1" max="10" value="6" oninput="updateMotion(this.value)" class="w-36 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer">
+    </div>
+  </div>
+
+  <!-- 4. Lighting & Color Grading -->
+  <div class="glass-card p-3 mb-3">
+    <div class="flex items-center gap-2 mb-2.5">
+      <div class="w-5 h-5 rounded-md bg-purple-400/20 flex items-center justify-center text-purple-300">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      </div>
+      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_lighting">Свет и Цветокоррекция</h2>
+    </div>
+    <div class="grid grid-cols-2 gap-2" id="group-lighting">
+      <!-- Light 1 -->
+      <div onclick="toggleCard(this, 'lighting')" data-value="Chiaroscuro High Contrast (8:1 Ratio)" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18m0-18a9 9 0 000 18m0-18a9 9 0 010 18"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-white truncate font-medium">Chiaroscuro Noir</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_chiaroscuro">Глубокие тени нуара и жесткий контраст света Караваджо</div>
+        </div>
+      </div>
+      <!-- Light 2 -->
+      <div onclick="toggleCard(this, 'lighting')" data-value="Kodak Vision3 500T 5219 Tungsten" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Kodak Vision3 500T</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_kodak">Легендарный теплый вольфрамовый цвет пленки киностудий</div>
+        </div>
+      </div>
+      <!-- Light 3 -->
+      <div onclick="toggleCard(this, 'lighting')" data-value="Cyberpunk Neon Cyan & Magenta Edge" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Cyberpunk Rim Light</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_cyber">Неоновые контурные рефлексы бирюзового и пурпурного</div>
+        </div>
+      </div>
+      <!-- Light 4 -->
+      <div onclick="toggleCard(this, 'lighting')" data-value="Golden Hour Warm Sun Flare 3200K" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path stroke-linecap="round" stroke-width="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Golden Hour 3200K</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_golden">Мягкие закатные лучи солнца с золотыми бликами в объективе</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Atmosphere & Volumetrics -->
+  <div class="glass-card p-3 mb-3">
+    <div class="flex items-center gap-2 mb-2.5">
+      <div class="w-5 h-5 rounded-md bg-cyan-400/20 flex items-center justify-center text-cyan-300">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+      </div>
+      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_atmosphere">Атмосфера и Погода</h2>
+    </div>
+    <div class="grid grid-cols-2 gap-2" id="group-weather">
+      <!-- Weather 1 -->
+      <div onclick="toggleCard(this, 'weather')" data-value="Volumetric God Rays Through Fog" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0l-1.414-1.414M7.05 7.05L5.636 5.636"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-white truncate font-medium">Volumetric Rays</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_godrays">Плотные световые лучи (God Rays), прорезающие густой туман</div>
+        </div>
+      </div>
+      <!-- Weather 2 -->
+      <div onclick="toggleCard(this, 'weather')" data-value="Torrential Rain with Wet Reflections" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Torrential Rain</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_rain">Стена ливня, стекающие капли и зеркальный мокрый асфальт</div>
+        </div>
+      </div>
+      <!-- Weather 3 -->
+      <div onclick="toggleCard(this, 'weather')" data-value="Post-Apocalyptic Ash Smog & Sparks" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Ash & Embers</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_ash">Парящий пепел, раскаленные угли и токсичный смог руин</div>
+        </div>
+      </div>
+      <!-- Weather 4 -->
+      <div onclick="toggleCard(this, 'weather')" data-value="Zero-G Cosmic Dust Particles" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
+        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="6" r="1.5"/><circle cx="5" cy="18" r="1.5"/></svg>
+        </div>
+        <div class="overflow-hidden">
+          <div class="title-text text-xs text-zinc-300 truncate font-medium">Cosmic Micro-Dust</div>
+          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_cosmic">Сверкающие микрочастицы в невесомости в свете звезд</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Master Button -->
+  <button onclick="generatePrompt()" class="apple-btn w-full py-3.5 mb-4 text-sm flex items-center justify-center gap-2 shadow-xl shadow-blue-500/20 active:scale-[0.98]">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <span data-i18n="btn_generate">Синтезировать Режиссерский Промпт (-1 XTR)</span>
+  </button>
+
+  <!-- Output Console -->
+  <div class="glass-card p-3.5 mb-3" id="outputConsole">
+    <div class="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
+      <div class="text-xs font-semibold text-white tracking-wide flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span data-i18n="output_title">Master Production Prompt</span>
+      </div>
+      <button onclick="copyOutput()" id="copyBtn" class="text-xs text-apple-blue font-medium flex items-center gap-1 active:opacity-75">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <span data-i18n="copy_btn">Копировать</span>
+      </button>
+    </div>
+    <div id="masterPromptText" class="text-xs text-zinc-300 font-mono leading-relaxed bg-black/60 p-3 rounded-xl border border-white/5 break-words select-text">
+      Select options and press Synthesize to generate Hollywood-grade prompt...
+    </div>
+
+    <!-- Negative Prompt Box -->
+    <div class="mt-3 pt-2.5 border-t border-white/5">
+      <div class="text-[10px] uppercase font-semibold text-zinc-500 mb-1" data-i18n="negative_title">Negative Prompt (Устранение дефектов)</div>
+      <div id="negativePromptText" class="text-[11px] text-zinc-400 font-mono bg-black/40 p-2.5 rounded-lg border border-white/5 select-text">
+        blurry, distorted anatomy, morphing artifacts, low bitrate, overexposed, video glitch, cartoon render, watermark
+      </div>
+    </div>
+  </div>
+
+  <!-- Telegram Stars Payment Modal -->
+  <div id="starsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-3">
+    <div class="glass-card w-full max-w-md p-4 bg-zinc-900 border border-white/10 shadow-2xl rounded-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-amber-400/20 flex items-center justify-center text-amber-400">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white" data-i18n="stars_modal_title">Telegram Stars (XTR)</h3>
+            <p class="text-[11px] text-zinc-400" data-i18n="stars_modal_sub">Официальная валюта встроенных покупок</p>
+          </div>
+        </div>
+        <button onclick="closeStarsModal()" class="text-zinc-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <p class="text-xs text-noir-300 leading-relaxed" data-i18n="modalDescription">
-        Telegram Stars списываются внутри Telegram без внешних эквайрингов. Разработчик получает выплаты в криптовалюте TON через Fragment.
+      <p class="text-xs text-zinc-300 mb-3" data-i18n="stars_modal_desc">
+        Пополняйте баланс генераций без ввода банковских карт. 1 звезда = 1 кинематографический мастер-промпт с глубокой оптимизацией.
       </p>
 
-      <!-- Package Selection -->
-      <div class="grid grid-cols-2 gap-2 pt-1">
-        <button onclick="purchasePack(25)" class="p-3 rounded-lg bg-noir-900 border border-noir-800 hover:border-amber-400/50 hover:bg-noir-850 text-left transition group">
-          <span class="text-[10px] font-mono text-noir-400 block mb-0.5">Starter Pack</span>
-          <span class="text-xs font-semibold text-noir-100 block">+25 Stars</span>
-          <span class="text-[10px] font-mono text-amber-400 font-medium">~59 RUB</span>
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <button onclick="topUpStars(25)" class="option-card p-3 text-center border-amber-500/20 active:scale-95">
+          <div class="text-base font-bold text-amber-300">⭐ 25 XTR</div>
+          <div class="text-[10px] text-zinc-400">Стартовый набор</div>
         </button>
-        <button onclick="purchasePack(100)" class="p-3 rounded-lg bg-noir-900 border border-noir-800 hover:border-amber-400/50 hover:bg-noir-850 text-left transition group">
-          <span class="text-[10px] font-mono text-accent-cyan block mb-0.5">Director Pro</span>
-          <span class="text-xs font-semibold text-noir-100 block">+100 Stars</span>
-          <span class="text-[10px] font-mono text-amber-400 font-medium">~239 RUB</span>
-        </button>
-        <button onclick="purchasePack(250)" class="p-3 rounded-lg bg-noir-900 border border-noir-800 hover:border-amber-400/50 hover:bg-noir-850 text-left transition group">
-          <span class="text-[10px] font-mono text-accent-violet block mb-0.5">Studio Master</span>
-          <span class="text-xs font-semibold text-noir-100 block">+250 Stars</span>
-          <span class="text-[10px] font-mono text-amber-400 font-medium">~549 RUB</span>
-        </button>
-        <button onclick="purchasePack(500)" class="p-3 rounded-lg bg-noir-900 border border-noir-800 hover:border-amber-400/50 hover:bg-noir-850 text-left transition group">
-          <span class="text-[10px] font-mono text-emerald-400 block mb-0.5">Unlimited Season</span>
-          <span class="text-xs font-semibold text-noir-100 block">+500 Stars</span>
-          <span class="text-[10px] font-mono text-amber-400 font-medium">~990 RUB</span>
+        <button onclick="topUpStars(100)" class="option-card p-3 text-center border-amber-500/30 bg-amber-500/10 active:scale-95">
+          <div class="text-base font-bold text-amber-300">⭐ 100 XTR</div>
+          <div class="text-[10px] text-zinc-300 font-medium">Pro Director (Выгодно)</div>
         </button>
       </div>
 
-      <div class="p-2.5 rounded bg-noir-950 border border-noir-850 text-[10px] font-mono text-noir-400">
-        <span class="text-noir-200">Native Call:</span> <code class="text-accent-cyan">Telegram.WebApp.openInvoice(link)</code>
-      </div>
-
-      <button onclick="closeStarsModal()" class="w-full py-2 bg-noir-850 hover:bg-noir-800 border border-noir-750 text-noir-100 font-mono text-xs rounded-lg transition" data-i18n="btnCloseModal">
+      <button onclick="closeStarsModal()" class="w-full py-2.5 rounded-xl bg-white/10 text-xs font-semibold text-zinc-300 hover:bg-white/15" data-i18n="close_btn">
         Закрыть
       </button>
     </div>
   </div>
 
-  <!-- Micro-Toast Alert -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 glass-panel border border-noir-600 text-noir-100 px-4 py-2 rounded-lg text-xs font-mono shadow-2xl opacity-0 translate-y-2 pointer-events-none transition-all duration-200 z-50">
-    <span id="toastMsg">Action Done</span>
-  </div>
-
   <script>
-    // Internationalization Catalog (RU / EN)
-    const i18n = {
-      ru: {
-        subtitle: "Кинематографический латентный протокол",
-        lblTargetModel: "Целевая нейросеть",
-        lblNarrative: "Действие и сюжет сцены",
-        btnRandomPreset: "Случайный сетап",
-        statusLatentReady: "Движок готов",
-        secComposition: "Композиция и ракурс",
-        secOptics: "Оптика и формат сенсора",
-        secMovement: "Движение камеры и тайминг",
-        secAtmosphere: "Погода и атмосфера",
-        secLighting: "Время суток и цветокоррекция",
-        lblMotionIntensity: "Интенсивность динамики",
-        btnCompile: "Скомпилировать Мастер-Промпт",
-        btnCopy: "Скопировать",
-        btnSequence: "3-Кадровая Раскадровка",
-        btnCopyNegative: "Copy Negative",
-        lblSequenceBeats: "Последовательность 3-х сцен",
-        footerStarsDesc: "Купить XTR пакеты или пополнить баланс",
-        footerTopUp: "Пополнить →",
-        modalTitle: "Пополнение Telegram Stars (XTR)",
-        modalDescription: "Telegram Stars списываются внутри Telegram без внешних эквайрингов. Разработчик получает выплаты в криптовалюте TON через Fragment.",
-        btnCloseModal: "Закрыть",
-        toastCopied: "Скопировано в буфер обмена",
-        toastGenerated: "Промпт скомпилирован (-1 XTR)",
-        toastNoBalance: "Недостаточно XTR! Пополните баланс.",
-        toastStarsAdded: "Баланс успешно пополнен: +"
+    // State
+    let currentLang = 'RU';
+    let currentEngine = 'kling';
+    let balance = 50;
+
+    const selections = {
+      framing: 'Low-Angle Heroic 45°',
+      optics: 'Cooke Anamorphic 35mm (IMAX 70mm)',
+      movement: 'Smooth Forward Dolly Push',
+      lighting: 'Chiaroscuro High Contrast (8:1 Ratio)',
+      weather: 'Volumetric God Rays Through Fog',
+      motion: 6
+    };
+
+    const dictionary = {
+      RU: {
+        subHeader: "Режиссерский кинематографический пульт",
+        engine_label: "Целевой нейродвижок",
+        subject_title: "Сюжет и действие",
+        random_idea: "Случайная сцена",
+        sec_framing: "Ракурс и План",
+        sec_optics: "Камера и Оптика",
+        sec_movement: "Движение Камеры",
+        sec_lighting: "Свет и Цветокоррекция",
+        sec_atmosphere: "Атмосфера и Погода",
+        motion_slider: "Интенсивность динамики:",
+        btn_generate: "Синтезировать Режиссерский Промпт (-1 XTR)",
+        output_title: "Мастер-промпт (Production Ready)",
+        copy_btn: "Копировать",
+        copied: "Скопировано в буфер!",
+        negative_title: "Negative Prompt (Устранение дефектов)",
+        stars_modal_title: "Telegram Stars (XTR)",
+        stars_modal_sub: "Официальная валюта встроенных покупок",
+        stars_modal_desc: "Пополняйте баланс генераций без ввода банковских карт. 1 звезда = 1 кинематографический мастер-промпт с глубокой оптимизацией.",
+        close_btn: "Закрыть",
+        desc_low_angle: "Взгляд снизу вверх, подчеркивает масштаб и доминирование",
+        desc_macro: "Сверхкрупный план: зрачок глаза, текстура кожи или металла",
+        desc_wide: "Широкий план всей локации, раскрывает мир и окружение",
+        desc_dutch: "Наклон горизонта по диагонали, создает напряжение и драйв",
+        desc_anamorphic: "Голливудские синие овальные блики и мягкое боке",
+        desc_arri: "Максимальная резкость деталей и киношная глубина резкости",
+        desc_leica: "Шелковистое размытие фона и премиальные портретные тона",
+        desc_grain: "Теплое аналоговое зерно ретро-пленки 70-х годов",
+        desc_dolly: "Плавный наезд камеры на главный объект без рывков",
+        desc_orbital: "Вращение вокруг персонажа со стабилизацией стедикама",
+        desc_fpv: "Стремительное пикирование дрона сверху сквозь преграды",
+        desc_vertigo: "Эффект Хичкока: искажение перспективы заднего фона",
+        desc_chiaroscuro: "Глубокие тени нуара и жесткий контраст света Караваджо",
+        desc_kodak: "Легендарный теплый вольфрамовый цвет пленки киностудий",
+        desc_cyber: "Неоновые контурные рефлексы бирюзового и пурпурного",
+        desc_golden: "Мягкие закатные лучи солнца с золотыми бликами в объективе",
+        desc_godrays: "Плотные световые лучи (God Rays), прорезающие густой туман",
+        desc_rain: "Стена ливня, стекающие капли и зеркальный мокрый асфальт",
+        desc_ash: "Парящий пепел, раскаленные угли и токсичный смог руин",
+        desc_cosmic: "Сверкающие микрочастицы в невесомости в свете звезд"
       },
-      en: {
-        subtitle: "Cinematographic Latent Protocol",
-        lblTargetModel: "Target Synthesis Model",
-        lblNarrative: "Scene Action & Core Subject",
-        btnRandomPreset: "Random Setup",
-        statusLatentReady: "Latent Engine Ready",
-        secComposition: "Framing & Angle",
-        secOptics: "Optics & Sensor Gate",
-        secMovement: "Camera Movement & Easing",
-        secAtmosphere: "Weather & Volumetrics",
-        secLighting: "Time of Day & Color Chemistry",
-        lblMotionIntensity: "Dynamic Motion Magnitude",
-        btnCompile: "Compile Master Prompt",
-        btnCopy: "Copy",
-        btnSequence: "3-Shot Sequence Beats",
-        btnCopyNegative: "Copy Negative",
-        lblSequenceBeats: "Continuous Visual Beats",
-        footerStarsDesc: "Top-up XTR packages or check balance",
-        footerTopUp: "Top-up →",
-        modalTitle: "Telegram Stars (XTR) Top-up",
-        modalDescription: "Telegram Stars are natively processed inside Telegram without external payment gateways. Payouts are in TON crypto via Fragment.",
-        btnCloseModal: "Close",
-        toastCopied: "Copied to clipboard",
-        toastGenerated: "Prompt Compiled (-1 XTR)",
-        toastNoBalance: "Insufficient XTR! Please top-up.",
-        toastStarsAdded: "Balance credited: +"
+      EN: {
+        subHeader: "Cinematic Latent Director Console",
+        engine_label: "Target Synthesis Engine",
+        subject_title: "Core Subject & Action",
+        random_idea: "Random Concept",
+        sec_framing: "Framing & Camera Angle",
+        sec_optics: "Lens & Sensor Gate",
+        sec_movement: "Camera Dynamic Physics",
+        sec_lighting: "Lighting & Color Grading",
+        sec_atmosphere: "Atmosphere & Weather",
+        motion_slider: "Motion Intensity:",
+        btn_generate: "Synthesize Director Prompt (-1 XTR)",
+        output_title: "Master Production Prompt",
+        copy_btn: "Copy",
+        copied: "Copied to clipboard!",
+        negative_title: "Strict Negative Prompt",
+        stars_modal_title: "Telegram Stars (XTR)",
+        stars_modal_sub: "Native in-app microcurrency",
+        stars_modal_desc: "Direct in-app billing without card checkout. 1 Star = 1 high-fidelity master director synthesis.",
+        close_btn: "Close",
+        desc_low_angle: "Looking upwards, conveys power, dominance and epic scale",
+        desc_macro: "Micro focus on textures: retina, cyber-optics, skin pores",
+        desc_wide: "Vast architectural framing establishing the entire scene",
+        desc_dutch: "Off-camber 15-degree tilt generating dramatic tension",
+        desc_anamorphic: "Cinematic horizontal blue streak flares and oval bokeh",
+        desc_arri: "Supreme surgical sharpness and true optical depth of field",
+        desc_leica: "Silky soft falloff with hyper-creamy skin rendering",
+        desc_grain: "Organic 16mm photochemical halide grain texture",
+        desc_dolly: "Silky forward camera push towards the focal subject",
+        desc_orbital: "360-degree continuous orbital wrap on 3-axis gimbal",
+        desc_fpv: "High-speed acrobatic drone dive skimming through barriers",
+        desc_vertigo: "Vertigo contra-zoom warping perspective depth",
+        desc_chiaroscuro: "Caravaggio-inspired 8:1 contrast with deep obsidian shadows",
+        desc_kodak: "Iconic warm Hollywood 3200K tungsten celluloid response",
+        desc_cyber: "Split cyan and magenta rim lights kissing subject contours",
+        desc_golden: "Warm 3200K sunset backlight casting organic lens blooms",
+        desc_godrays: "Heavy volumetric light shafts slicing dense atmospheric haze",
+        desc_rain: "Heavy downpour sheets with high-gloss mirror puddles",
+        desc_ash: "Floating fiery embers and toxic post-war particulate smog",
+        desc_cosmic: "Zero-G floating star-dust backlit by stellar glare"
       }
     };
 
-    let currentLang = 'ru';
-
-    // Application State Store
-    const state = {
-      lang: 'ru',
-      model: 'kling',
-      stars: 50,
-      aspectRatio: '16:9',
-      motionLevel: 7,
-      seed: '',
-      composition: 'comp1',
-      optics: 'opt1',
-      movement: 'mov1',
-      atmosphere: 'atm1',
-      lighting: 'lig1',
-      core: ''
-    };
-
-    // Professional Values Dictionary
-    const promptDictionary = {
-      comp1: "Heroic low-angle perspective tilted 45 degrees upward, emphasizing towering scale and spatial authority",
-      comp2: "Extreme macro close-up inspection framing, microscopic physical surface textures, razor-sharp optical focal plane",
-      comp3: "Immense wide panoramic establishing shot, distant horizon geometry, deep architectural depth-of-field",
-      comp4: "Dramatic Dutch tilt canted camera angle, off-axis kinetic framing, disorienting compositional tension",
-
-      opt1: "Cooke Anamorphic /i Full Frame Plus 35mm optical glass, widescreen IMAX 70mm gate, signature horizontal blue anamorphic streak flaring and oval bokeh",
-      opt2: "Arri Master Prime 50mm T1.3, Super 35 sensor geometry, zero chromatic distortion, uncompromising edge-to-edge optical resolution",
-      opt3: "Leica Noctilux-M 75mm f/1.25, Full Frame sensor, wafer-thin focal plane with painterly organic background disintegration",
-      opt4: "Vintage 16mm Bolex Switar lens, tactile film gate, organic silver halide grain structure, authentic emulsion breathing",
-
-      mov1: "Subtle ultra-smooth slow-motion 120fps mechanical forward dolly push-in on stabilized slider axis",
-      mov2: "360-degree orbital steadicam tracking sweep around subject with constant angular orbital velocity",
-      mov3: "High-velocity kinetic hyperlapse traversal with directional linear motion blur and snappy perspective parallax",
-      mov4: "Organic handheld camera sway with subtle operator breathing vibrations and spontaneous micro-adjustments",
-
-      atm1: "Torrential downpour rain, glossy soaked asphalt reflections, vivid neon light scatter, rising street steam mist",
-      atm2: "Heavy volumetric fog pierced by crisp directional god rays, floating airborne dust motes in ambient backlight",
-      atm3: "Dense industrial smog illuminated by low-frequency sodium-vapor amber glow, occasional high-voltage electrical sparks",
-      atm4: "Blinding arctic blizzard conditions, swirling crystal snow particles, sub-zero frosty glass condensation",
-
-      lig1: "Golden hour magic sunlight raking at 3200K, luminous rim highlight separation from dark twilight background",
-      lig2: "Cold blue hour dusk illumination, cyan ambient sky fill, deep indigo shadows, 10:1 tonal contrast ratio",
-      lig3: "Kodak Vision3 500T 5219 film stock color science, warm skin rendition, rich halation around specular highlights",
-      lig4: "Bleach Bypass chemical film development process, desaturated gritty palette, brutalist monochrome punch"
-    };
-
-    const modelSpecs = {
-      kling: {
-        title: "Kling 1.5 // 4K 60fps Cinema",
-        badge: "KLING 1.5 PRO",
-        compile: (c, comp, opt, mov, atm, lig, ar, mot, seed) => 
-          `${c}. Shot description: ${comp}. Visual capture: ${opt}. Motion behavior: ${mov} (motion weight: ${mot}/10). Weather & volumetric environment: ${atm}. Lighting palette: ${lig}. Master cinema production, physically accurate physics --ar ${ar} ${seed ? `--seed ${seed}` : ''} --mode pro`
-      },
-      runway: {
-        title: "Runway Gen-3 // Director Vector",
-        badge: "RUNWAY GEN-3",
-        compile: (c, comp, opt, mov, atm, lig, ar, mot) => 
-          `Cinematography directive: ${c}. Framing: ${comp}. Camera rig: ${mov}. Optics: ${opt}. Volumetrics: ${atm}. Lighting & grade: ${lig}. Dynamic magnitude: ${mot}. 35mm motion picture finish.`
-      },
-      flux: {
-        title: "Flux 1.1 Pro // Photoreal Still",
-        badge: "FLUX 1.1 PRO",
-        compile: (c, comp, opt, mov, atm, lig, ar, mot, seed) => 
-          `Award-winning cinematography frame: ${c}. Composition: ${comp}, ${opt}, illuminated by ${lig}, surrounded by ${atm}. Ultra-fine texture rendering, authentic optical photography --aspect ${ar}`
-      },
-      sora: {
-        title: "OpenAI Sora // Coherent Render",
-        badge: "SORA DIRECTIVE",
-        compile: (c, comp, opt, mov, atm, lig, ar, mot) => 
-          `A hyper-realistic film sequence of ${c}. The shot is captured via ${mov} with ${comp}. Optical lens: ${opt}. Environmental details: ${atm}. Color and light: ${lig}. Highly coherent spatial rendering.`
-      },
-      luma: {
-        title: "Luma Ray 1.6 // Inertial Camera",
-        badge: "LUMA RAY 1.6",
-        compile: (c, comp, opt, mov, atm, lig, ar, mot) => 
-          `Continuous cinematic motion capture: ${c}. Camera movement: ${mov}. Framing: ${comp}. Lens: ${opt}. Atmosphere: ${atm}. Color grade: ${lig}. Realistic fluid and fabric dynamics.`
-      },
-      midjourney: {
-        title: "Midjourney v6.1 // Raw Cinema Frame",
-        badge: "MIDJOURNEY V6.1",
-        compile: (c, comp, opt, mov, atm, lig, ar, mot, seed) => 
-          `Cinematic still from a 35mm film, ${c}, ${comp}, ${opt}, ${atm}, ${lig}, shot on Arri Alexa --ar ${ar} --style raw --v 6.1 ${seed ? `--seed ${seed}` : ''}`
-      }
-    };
-
-    const presets = [
-      "Cybernetic courier in wet carbon-fiber trench coat navigating a dystopian neon alleyway in rain-slicked Neo-Tokyo",
-      "Solitary astronaut standing at the rim of an ancient titanium crater on Mars as a dust storm approaches the colony",
-      "Vintage 1971 Dodge Charger speeding over a suspension bridge at twilight, exhaust flame bursts reflecting on wet asphalt",
-      "Deep sea diver in brass pressure helmet discovering a glowing bioluminescent geothermal vent on the oceanic abyss floor"
-    ];
-
-    // Language Toggle Handling
-    function setLanguage(lang) {
+    function setLang(lang) {
       currentLang = lang;
-      state.lang = lang;
+      document.getElementById('langRU').className = lang === 'RU' ? 'px-2.5 py-1 rounded-lg bg-white/20 text-white transition-all' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition-all';
+      document.getElementById('langEN').className = lang === 'EN' ? 'px-2.5 py-1 rounded-lg bg-white/20 text-white transition-all' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition-all';
       
-      const ruBtn = document.getElementById('langRuBtn');
-      const enBtn = document.getElementById('langEnBtn');
-
-      if (lang === 'ru') {
-        ruBtn.className = "px-2 py-0.5 rounded transition font-medium text-noir-100 bg-noir-800";
-        enBtn.className = "px-2 py-0.5 rounded transition font-medium text-noir-400 hover:text-noir-200";
-      } else {
-        enBtn.className = "px-2 py-0.5 rounded transition font-medium text-noir-100 bg-noir-800";
-        ruBtn.className = "px-2 py-0.5 rounded transition font-medium text-noir-400 hover:text-noir-200";
-      }
-
-      // Update all data-i18n elements
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (i18n[lang][key]) {
-          el.textContent = i18n[lang][key];
+        if (dictionary[lang][key]) {
+          el.innerText = dictionary[lang][key];
         }
       });
-
-      // Update input placeholder
-      const coreInput = document.getElementById('corePromptInput');
-      coreInput.placeholder = lang === 'ru' 
-        ? "Опишите сцену своими словами (например: кибер-курьер под проливным дождём в переулке Токио)..."
-        : "Describe your scene in simple terms (e.g., cyber courier under pouring rain in Neo Tokyo alley)...";
+      document.getElementById('subHeader').innerText = dictionary[lang].subHeader;
     }
 
-    // Dynamic Selectors Setup
-    function initSelectors() {
-      // Setup Chip Grid Clickers
-      document.querySelectorAll('.chip-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const cat = btn.getAttribute('data-cat');
-          const key = btn.getAttribute('data-key');
-
-          document.querySelectorAll(`button[data-cat="${cat}"]`).forEach(b => {
-            b.classList.remove('active-chip');
-            b.classList.add('text-noir-400');
-          });
-
-          btn.classList.add('active-chip');
-          btn.classList.remove('text-noir-400');
-          state[cat] = key;
-        });
-      });
-
-      // Aspect Ratio Pills
-      document.querySelectorAll('.ar-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.ar-btn').forEach(b => {
-            b.classList.remove('active-chip');
-            b.classList.add('text-noir-400');
-          });
-          btn.classList.add('active-chip');
-          btn.classList.remove('text-noir-400');
-          state.aspectRatio = btn.getAttribute('data-ar');
-        });
-      });
-
-      // Model Switcher Tabs
-      document.querySelectorAll('.model-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.model-tab').forEach(t => {
-            t.classList.remove('active-tab');
-            t.classList.add('text-noir-400');
-          });
-          tab.classList.add('active-tab');
-          tab.classList.remove('text-noir-400');
-
-          const m = tab.getAttribute('data-model');
-          state.model = m;
-          document.getElementById('modelSpec').textContent = modelSpecs[m].title;
-        });
-      });
-
-      // Motion Slider
-      const motionSlider = document.getElementById('motionSlider');
-      motionSlider.addEventListener('input', (e) => {
-        state.motionLevel = e.target.value;
-        document.getElementById('motionIntensityVal').textContent = `Level ${e.target.value} / 10`;
-      });
-
-      // Core Prompt Input
-      const coreInput = document.getElementById('corePromptInput');
-      coreInput.addEventListener('input', (e) => {
-        state.core = e.target.value;
-        document.getElementById('charCount').textContent = `${e.target.value.length} ch`;
-      });
-
-      // Random Preset
-      document.getElementById('randomPromptBtn').addEventListener('click', () => {
-        const p = presets[Math.floor(Math.random() * presets.length)];
-        coreInput.value = p;
-        coreInput.dispatchEvent(new Event('input'));
-        showToast("Preset Loaded");
-      });
-
-      // Seed Input
-      document.getElementById('seedInput').addEventListener('input', (e) => {
-        state.seed = e.target.value.trim();
+    function selectEngine(eng) {
+      currentEngine = eng;
+      document.querySelectorAll('.engine-btn').forEach(btn => {
+        if (btn.getAttribute('data-engine') === eng) {
+          btn.className = 'engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all bg-white/20 text-white shadow-sm ring-1 ring-white/20';
+        } else {
+          btn.className = 'engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white';
+        }
       });
     }
 
-    // Generator Compiler Action
-    document.getElementById('generateBtn').addEventListener('click', () => {
-      if (state.stars <= 0) {
-        showToast(i18n[currentLang].toastNoBalance);
+    function toggleCard(el, category) {
+      const parent = document.getElementById('group-' + category);
+      parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      selections[category] = el.getAttribute('data-value');
+    }
+
+    function updateMotion(val) {
+      selections.motion = val;
+      document.getElementById('motionVal').innerText = val + ' / 10';
+    }
+
+    const randomScenes = [
+      "Кибер-наемник в неоновом дождевике перезаряжает плазменную винтовку на крыше небоскреба",
+      "Огромный робот-страж дремлет в руинах древнего храма, поросшего мхом и светящимися грибами",
+      "Девушка в винтажном шлеме мчится на ховербайке по бесконечному зеркальному солончаку на закате",
+      "Космический инженер проводит диагностику ядерного реактора в открытом космосе во время метеоритного дождя"
+    ];
+
+    function randomizePrompt() {
+      const random = randomScenes[Math.floor(Math.random() * randomScenes.length)];
+      document.getElementById('promptSubject').value = random;
+    }
+
+    function generatePrompt() {
+      if (balance <= 0) {
         openStarsModal();
         return;
       }
 
-      // Deduct 1 star
-      state.stars -= 1;
-      updateStarsUI();
+      balance -= 1;
+      document.getElementById('starsBalance').innerText = balance;
 
-      const btn = document.getElementById('generateBtn');
-      btn.disabled = true;
-      btn.style.opacity = '0.6';
-
-      setTimeout(() => {
-        const core = state.core.trim() || (currentLang === 'ru' 
-          ? "Одинокий странник в черном тактическом плаще идет по пустому футуристическому мосту" 
-          : "A solitary wanderer in a dark tactical coat walks across an empty futuristic bridge");
-
-        const comp = promptDictionary[state.composition];
-        const opt = promptDictionary[state.optics];
-        const mov = promptDictionary[state.movement];
-        const atm = promptDictionary[state.atmosphere];
-        const lig = promptDictionary[state.lighting];
-        const model = modelSpecs[state.model];
-
-        const compiled = model.compile(
-          core, comp, opt, mov, atm, lig, state.aspectRatio, state.motionLevel, state.seed
-        );
-
-        // Display results
-        document.getElementById('masterPromptOutput').textContent = compiled;
-        document.getElementById('outputBadge').textContent = `${model.badge} // ${state.aspectRatio}`;
-        document.getElementById('tokenEstimate').textContent = `~${Math.round(compiled.split(' ').length * 1.35)} tokens`;
-
-        // Generate 3-Scene Visual Beats
-        document.getElementById('seqBeat1').textContent = `Establishing beat: ${core}. Framed via ${comp}. Atmospheric setup: ${atm}.`;
-        document.getElementById('seqBeat2').textContent = `Dynamic peak: Camera executes ${mov}. Micro-interactions rendered with ${opt}.`;
-        document.getElementById('seqBeat3').textContent = `Resolution: Light shifts under ${lig}. Sharp textures resolve into final focal rest.`;
-
-        const resultCard = document.getElementById('resultCard');
-        resultCard.classList.remove('hidden');
-        resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        showToast(i18n[currentLang].toastGenerated);
-      }, 250);
-    });
-
-    // Copy to Clipboard Utility
-    function copyText(str, msg) {
-      const el = document.createElement('textarea');
-      el.value = str;
-      el.style.position = 'fixed';
-      el.style.opacity = '0';
-      document.body.appendChild(el);
-      el.select();
-      try {
-        document.execCommand('copy');
-        showToast(msg || i18n[currentLang].toastCopied);
-      } catch (e) {
-        showToast("Copy Failed");
+      // Haptic feedback in Telegram
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
       }
-      document.body.removeChild(el);
+
+      const subject = document.getElementById('promptSubject').value.trim() || "An enigmatic cinematic protagonist walking through atmospheric haze";
+      
+      let engineTags = "";
+      if (currentEngine === 'kling') engineTags = "--kling 1.5 --motion " + selections.motion + " --cfg 0.65 --camera dynamic";
+      else if (currentEngine === 'runway') engineTags = "--gen3 --motion-brush 6 --fps 60 --ar 16:9";
+      else if (currentEngine === 'flux') engineTags = "--flux-pro --raw --dof high --v 1.1";
+      else if (currentEngine === 'sora') engineTags = "--sora --temporal-consistency 1.0 --photoreal";
+      else if (currentEngine === 'luma') engineTags = "--luma-ray2 --volumetric-light true";
+      else if (currentEngine === 'midjourney') engineTags = "--v 6.1 --style raw --ar 16:9 --stylize 250";
+
+      const master = `Cinematic master shot, ${selections.framing}, ${selections.optics}. ${subject}. Dynamic camera execution: ${selections.movement} with motion intensity factor ${selections.motion}/10. Lighting setup: ${selections.lighting}. Environmental atmosphere: ${selections.weather}. Master color grade, photochemical texture, hyper-realistic optical fidelity, Arri Alexa 65 sensor quality ${engineTags}`;
+
+      document.getElementById('masterPromptText').innerText = master;
+      
+      // Auto scroll to result smoothly
+      document.getElementById('outputConsole').scrollIntoView({ behavior: 'smooth' });
     }
 
-    document.getElementById('copyPromptBtn').addEventListener('click', () => {
-      copyText(document.getElementById('masterPromptOutput').textContent);
-    });
-
-    document.getElementById('copyNegativeBtn').addEventListener('click', () => {
-      copyText("oversaturated, deformed human limbs, extra fingers, cartoonish render, plastic textures, motion blurring artifacts, watermark, low bitrate compression");
-    });
-
-    document.getElementById('toggleSeqBtn').addEventListener('click', () => {
-      document.getElementById('sequenceTray').classList.toggle('hidden');
-    });
-
-    // Modal & Toast Controls
-    function updateStarsUI() {
-      document.getElementById('starsBalanceDisplay').textContent = `${state.stars} XTR`;
-      document.getElementById('footerStarsCount').textContent = `${state.stars} XTR`;
+    function copyOutput() {
+      const text = document.getElementById('masterPromptText').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+        const copyBtn = document.getElementById('copyBtn');
+        const orig = copyBtn.innerHTML;
+        copyBtn.innerHTML = `<span class="text-emerald-400">✓ ${dictionary[currentLang].copied}</span>`;
+        setTimeout(() => { copyBtn.innerHTML = orig; }, 2000);
+      });
     }
 
-    window.openStarsModal = function() {
+    function openStarsModal() {
       document.getElementById('starsModal').classList.remove('hidden');
-    };
-
-    window.closeStarsModal = function() {
-      document.getElementById('starsModal').classList.add('hidden');
-    };
-
-    window.purchasePack = function(amount) {
-      state.stars += amount;
-      updateStarsUI();
-      closeStarsModal();
-      showToast(`${i18n[currentLang].toastStarsAdded}${amount} XTR`);
-    };
-
-    let toastTimer;
-    function showToast(text) {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      toastMsg.textContent = text;
-      toast.classList.remove('opacity-0', 'translate-y-2');
-      toast.classList.add('opacity-100', 'translate-y-0');
-
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', 'translate-y-2');
-      }, 2200);
     }
 
-    // Language buttons
-    document.getElementById('langRuBtn').addEventListener('click', () => setLanguage('ru'));
-    document.getElementById('langEnBtn').addEventListener('click', () => setLanguage('en'));
+    function closeStarsModal() {
+      document.getElementById('starsModal').classList.add('hidden');
+    }
 
-    // Boot
-    window.onload = function() {
-      initSelectors();
-      updateStarsUI();
-    };
+    function topUpStars(amount) {
+      balance += amount;
+      document.getElementById('starsBalance').innerText = balance;
+      closeStarsModal();
+      if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+      }
+      alert(`Начислено +${amount} XTR! Новый баланс: ${balance} звезд.`);
+    }
+
+    // Initialize Telegram WebApp viewport
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
   </script>
 </body>
 </html>
