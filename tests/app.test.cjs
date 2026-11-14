@@ -66,6 +66,15 @@ async function run() {
       }),
     );
     const page = await context.newPage();
+    await page.addInitScript(() => {
+      window.LanguageModel = {
+        availability: async () => "available",
+        create: async () => ({
+          prompt: async () => "Проверенный улучшенный промпт\nРучная правка",
+          destroy() {},
+        }),
+      };
+    });
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto(url);
     await page.waitForSelector("#field-scene");
@@ -127,6 +136,19 @@ async function run() {
     await page.locator("#output").fill(output + "\nРучная правка");
     await page.locator("#edit").click();
     assert.equal(await page.locator("#history-count").textContent(), "1");
+    await page.locator("#improve").click();
+    await page.locator("#comparison:not([hidden])").waitFor();
+    await page.locator('[data-compare="diff"]').click();
+    assert.match(await page.locator("#comparison-text ins").first().textContent(), /Проверенный/);
+    assert.ok(await page.locator("#comparison-text del").count());
+    await page.locator('[data-compare="before"]').click();
+    assert.doesNotMatch(await page.locator("#comparison-text").textContent(), /Проверенный/);
+    await page.reload();
+    await page.locator("#comparison:not([hidden])").waitFor();
+    assert.equal(await page.locator("#history-count").textContent(), "1");
+    await page.locator("#favorite-improved").click();
+    assert.equal(await page.locator("#favorite-improved").getAttribute("aria-pressed"), "true");
+    await page.locator("#favorite-improved").click();
     await page.locator(".favorite-button").first().click();
     await page.locator("#favorites-filter").click();
     assert.equal(await page.locator(".history-item").count(), 1);

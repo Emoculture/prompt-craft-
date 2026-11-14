@@ -13,6 +13,16 @@
     />
     <title>Director Studio</title>
     <style>
+.comparison { margin-top: 16px; }
+.comparison-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.comparison-tabs button[aria-pressed="true"] { background: #8261ba55; box-shadow: inset 0 -2px #ccabff; }
+#comparison-text { max-height: 330px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; padding: 12px; border-radius: 12px; background: #090b19; }
+#comparison-text ins { background: #674598; color: #f3e6ff; text-decoration: none; }
+#comparison-text del { color: #a7a3b8; }
+@media (prefers-reduced-motion: no-preference) {
+  #comparison-text { animation: appear .24s ease-out; }
+  .comparison-tabs button { transition: background .2s, box-shadow .2s; }
+}
 :root {
   color-scheme: dark;
   --bg: #101222;
@@ -4900,6 +4910,18 @@ dialog .section-heading {
                   </button>
                 </div>
                 <button type="button" class="secondary ai-improve" id="improve" data-i18n="improve" hidden>Улучшить с ИИ</button>
+                <section id="comparison" class="comparison" hidden>
+                  <div class="comparison-tabs">
+                    <button type="button" class="secondary" data-compare="before" data-i18n="compareBefore">Исходный</button>
+                    <button type="button" class="secondary" data-compare="after" data-i18n="compareAfter">Улучшенный</button>
+                    <button type="button" class="secondary" data-compare="diff" data-i18n="compareDiff">Показать изменения</button>
+                  </div>
+                  <div id="comparison-text" tabindex="0" role="region" aria-live="polite"></div>
+                  <div class="result-actions">
+                    <button type="button" class="secondary" id="copy-improved" data-i18n="copyImproved">Копировать улучшенный</button>
+                    <button type="button" class="secondary" id="favorite-improved" data-i18n="saveFavorite">Добавить в избранное</button>
+                  </div>
+                </section>
                 <p class="micro" data-i18n="editHint">
                   Изменения автоматически сохраняются в истории.
                 </p>
@@ -5028,6 +5050,11 @@ dialog .section-heading {
     removeFavorite: ["Убрать из избранного", "Remove from favorites"],
     improve: ["Улучшить с ИИ", "Improve with AI"],
     improving: ["ИИ улучшает промпт…", "AI is improving the prompt…"],
+    compareBefore: ["Исходный", "Original"],
+    compareAfter: ["Улучшенный", "Improved"],
+    compareDiff: ["Показать изменения", "Show changes"],
+    copyImproved: ["Копировать улучшенный", "Copy improved"],
+    improveAgain: ["Улучшить повторно", "Improve again"],
     improveError: ["Не удалось улучшить промпт. Попробуйте ещё раз.", "Could not improve the prompt. Try again."],
     aiUnavailable: ["Для этого языка встроенная модель недоступна.", "The built-in model is unavailable for this language."],
     localHint: [
@@ -5509,6 +5536,7 @@ dialog .section-heading {
         if (resultValid(data.result))
           state.drafts[mode].result = {
             id: data.result.id,
+            comparison: readComparison(data.result.comparison),
             text: data.result.text,
             lang: data.result.lang,
             target: data.result.target,
@@ -5530,6 +5558,7 @@ dialog .section-heading {
             target: r.target,
             mode: r.mode,
             date: r.date,
+            comparison: readComparison(r.comparison),
           }));
     }
   } catch {
@@ -5757,10 +5786,99 @@ dialog .section-heading {
     }
     target.value = state.drafts[state.mode].target;
   }
+  function readComparison(pair) {
+    return pair && [pair.before, pair.after].every((text) =>
+      typeof text === "string" && text.length <= 60000)
+      ? { before: pair.before, after: pair.after }
+      : undefined;
+  }
+  let comparisonView = "after";
+
+  function appendDiff(container, before, after) {
+    // Keep unchanged edges and use an LCS edit script for the changed middle.
+    const tokenize = (text) => text.match(/\s+|[\p{L}\p{N}\p{M}_]+|[^\s]/gu) || [];
+    const a = tokenize(before);
+    const b = tokenize(after);
+    let start = 0;
+    let endA = a.length;
+    let endB = b.length;
+    while (start < endA && start < endB && a[start] === b[start]) start++;
+    while (endA > start && endB > start && a[endA - 1] === b[endB - 1]) {
+      endA--;
+      endB--;
+    }
+    container.append(a.slice(0, start).join(""));
+    const x = a.slice(start, endA);
+    const y = b.slice(start, endB);
+    const append = (tag, text) => {
+      if (!text) return;
+      if (!tag) {
+        container.append(text);
+        return;
+      }
+      const node = document.createElement(tag);
+      node.textContent = text;
+      container.append(node);
+    };
+    const width = y.length + 1;
+    const cells = (x.length + 1) * width;
+    if (cells > 600000) {
+      append("del", x.join(""));
+      append("ins", y.join(""));
+    } else {
+      const lcs = new Uint16Array(cells);
+      for (let i = x.length - 1; i >= 0; i--)
+        for (let j = y.length - 1; j >= 0; j--) {
+          const cell = i * width + j;
+          lcs[cell] = x[i] === y[j] ? 1 + lcs[cell + width + 1]
+            : Math.max(lcs[cell + width], lcs[cell + 1]);
+        }
+      let i = 0, j = 0, kind = "", chunk = "";
+      while (i < x.length || j < y.length) {
+        let next, token;
+        if (i < x.length && j < y.length && x[i] === y[j]) {
+          next = ""; token = x[i++]; j++;
+        } else if (i < x.length && (j === y.length || lcs[(i + 1) * width + j] >= lcs[i * width + j + 1])) {
+          next = "del"; token = x[i++];
+        } else {
+          next = "ins"; token = y[j++];
+        }
+        if (next !== kind) {
+          append(kind, chunk);
+          kind = next;
+          chunk = "";
+        }
+        chunk += token;
+      }
+      append(kind, chunk);
+    }
+    container.append(a.slice(endA).join(""));
+  }
+
+  function renderComparison(result) {
+    const pair = readComparison(result?.comparison);
+    $("comparison").hidden = !pair;
+    $("improve").textContent = t(pair ? "improveAgain" : "improve");
+    if (!pair) return;
+    const view = $("comparison-text");
+    view.replaceChildren();
+    view.scrollTop = 0;
+    if (comparisonView === "diff") appendDiff(view, pair.before, pair.after);
+    else view.textContent = pair[comparisonView];
+    for (const button of document.querySelectorAll("[data-compare]"))
+      button.setAttribute("aria-pressed", String(button.dataset.compare === comparisonView));
+    const selected = document.querySelector('[data-compare][aria-pressed="true"]');
+    view.setAttribute("aria-label", selected.textContent);
+    const saved = Object.hasOwn(state.favorites, result.id);
+    $("favorite-improved").textContent = t(saved ? "removeFavorite" : "saveFavorite");
+    $("favorite-improved").setAttribute("aria-pressed", String(saved));
+  }
+
   function renderResult() {
     const result = state.drafts[state.mode].result;
     $("empty-result").hidden = !!result;
     $("result-content").hidden = !result;
+    renderComparison(result);
     if (!result) return;
     $("output").value = result.text;
     $("output").readOnly = !editing;
@@ -5846,6 +5964,7 @@ dialog .section-heading {
         state.mode = item.mode;
         state.drafts[item.mode].result = {
           id: item.id,
+          comparison: readComparison(item.comparison),
           text: item.text,
           lang: item.lang,
           target: item.target,
@@ -6146,6 +6265,46 @@ dialog .section-heading {
     if (success) haptic("success");
   }
   $("prompt-form").addEventListener("submit", generate);
+  const currentResult = () => state.drafts[state.mode].result;
+  for (const button of document.querySelectorAll("[data-compare]")) {
+    button.addEventListener("click", () => {
+      comparisonView = button.dataset.compare;
+      renderComparison(currentResult());
+      haptic();
+    });
+  }
+  $("copy-improved").addEventListener("click", async () => {
+    const text = currentResult()?.comparison?.after;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      toast(t("copied"));
+    } catch {
+      comparisonView = "after";
+      renderComparison(currentResult());
+      const view = $("comparison-text");
+      view.focus();
+      const range = document.createRange();
+      range.selectNodeContents(view);
+      const selection = getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      toast(t("copyFailed"));
+    }
+  });
+  $("favorite-improved").addEventListener("click", () => {
+    const result = currentResult();
+    if (!result?.comparison) return;
+    if (Object.hasOwn(state.favorites, result.id)) delete state.favorites[result.id];
+    else Object.defineProperty(state.favorites, result.id, {
+      value: { ...result, mode: state.mode, date: Date.now() },
+      writable: true, enumerable: true, configurable: true,
+    });
+    persist();
+    renderComparison(result);
+    renderHistory();
+    haptic();
+  });
   $("prompt-style").value = state.style;
   $("prompt-style").addEventListener("change", (event) => {
     state.style = event.target.value;
@@ -6184,6 +6343,8 @@ dialog .section-heading {
       const revised = (await session.prompt(instruction + "\n\n" + original)).trim();
       if (!revised || revised.length > 60000) throw new Error("Invalid AI result");
       if (state.mode === mode && state.drafts[mode].result === result && result.text === original) {
+        result.comparison = { before: original, after: revised };
+        comparisonView = "after";
         $("output").value = revised;
         $("output").dispatchEvent(new Event("input"));
         toast(t("created"));
@@ -6234,12 +6395,13 @@ dialog .section-heading {
     if (!r) return;
     r.text = $("output").value;
     const existing = state.history.find((i) => i.id === r.id);
-    if (existing) existing.text = r.text;
+    if (existing) Object.assign(existing, { text: r.text, comparison: r.comparison });
     else {
       state.history.unshift({ ...r, mode: state.mode, date: Date.now() });
       state.history = state.history.slice(0, 30);
     }
-    if (Object.hasOwn(state.favorites, r.id)) state.favorites[r.id].text = r.text;
+    if (Object.hasOwn(state.favorites, r.id))
+      Object.assign(state.favorites[r.id], { text: r.text, comparison: r.comparison });
     $("improve").disabled = aiBusy || !r.text.trim();
     persist();
     $("char-count").textContent =
