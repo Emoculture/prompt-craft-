@@ -27,6 +27,7 @@
     ],
     generate: ["Создать промпт", "Create prompt"],
     promptStyle: ["Стиль промпта", "Prompt style"],
+    workspaceIntro: ["Выберите задачу и стиль, затем создайте промпт.", "Choose a task and style, then create a prompt."],
     quick: ["Быстрый", "Quick"],
     pro: ["Профессиональный", "Professional"],
     creative: ["Креативный", "Creative"],

@@ -40,6 +40,29 @@
 .favorite-button:active { transform: scale(.9); }
 #prompt-style { margin-bottom: 12px; }
 .ai-improve { margin-top: 8px; }
+.shell .intro {
+  margin: 18px 0;
+  padding: 20px 24px;
+  border: 1px solid #6ee7d240;
+  border-radius: 22px;
+  background: linear-gradient(112deg, #123b3b, #182037 62%, #39234b);
+}
+.shell .intro h1 { margin: 0 0 4px; }
+.prompt-toolbar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #53e2c511;
+  border: 1px solid #53e2c540;
+}
+.prompt-toolbar > * { flex: 1 1 175px; min-width: 0; }
+.prompt-toolbar #prompt-style { margin-bottom: 0; }
+.prompt-toolbar .primary { background: #9af5de; color: #092b28; }
+.history-panel .library-controls { padding: 8px; border-radius: 14px; background: #a483ff19; }
 @media (prefers-reduced-motion: reduce) { .favorite-button { transition: none; } }
 * {
   box-sizing: border-box;
@@ -1035,14 +1058,8 @@ dialog .section-heading {
       </header>
       <main>
         <section class="intro">
-          <div class="eyebrow">
-            <span class="status-dot"></span
-            ><span data-i18n="eyebrow">ВАША ТВОРЧЕСКАЯ СТУДИЯ</span>
-          </div>
-          <h1 data-i18n="headline">От идеи — к точному промпту.</h1>
-          <p data-i18n="intro">
-            Задайте направление. Добавьте детали. Создайте что-то своё.
-          </p>
+          <h1>Director Studio</h1>
+          <p data-i18n="workspaceIntro">Выберите задачу и стиль, затем создайте промпт.</p>
         </section>
         <nav id="modes" class="mode-nav glass" aria-label="Режимы"></nav>
         <div class="workspace">
@@ -1060,6 +1077,19 @@ dialog .section-heading {
               </div>
               <p class="hint" id="mode-hint"></p>
               <div id="brief-fields"></div>
+              <div class="generate-wrap prompt-toolbar">
+                <div>
+                  <label for="prompt-style" data-i18n="promptStyle">Стиль промпта</label>
+                  <select id="prompt-style">
+                    <option value="quick" data-i18n="quick">Быстрый</option>
+                    <option value="pro" data-i18n="pro">Профессиональный</option>
+                    <option value="creative" data-i18n="creative">Креативный</option>
+                  </select>
+                </div>
+                <button class="primary" id="generate" type="submit">
+                  <span data-icon="sparkles"></span><span data-i18n="generate">Создать промпт</span>
+                </button>
+              </div>
             </section>
             <section class="glass panel mode-panel">
               <div class="section-heading">
@@ -1080,22 +1110,6 @@ dialog .section-heading {
                 параметры зависят от модели.
               </p>
             </section>
-            <div class="generate-wrap">
-              <label for="prompt-style" data-i18n="promptStyle">Стиль промпта</label>
-              <select id="prompt-style">
-                <option value="quick" data-i18n="quick">Быстрый</option>
-                <option value="pro" data-i18n="pro">Профессиональный</option>
-                <option value="creative" data-i18n="creative">Креативный</option>
-              </select>
-              <button class="primary" id="generate" type="submit">
-                <span data-icon="sparkles"></span
-                ><span data-i18n="generate">Создать промпт</span
-                ><span class="arrow">↗</span>
-              </button>
-              <p class="micro" data-i18n="localHint">
-                Бесплатно · Без отправки данных в нейросеть
-              </p>
-            </div>
           </form>
           <aside class="result-column">
             <section
@@ -1264,6 +1278,7 @@ dialog .section-heading {
     ],
     generate: ["Создать промпт", "Create prompt"],
     promptStyle: ["Стиль промпта", "Prompt style"],
+    workspaceIntro: ["Выберите задачу и стиль, затем создайте промпт.", "Choose a task and style, then create a prompt."],
     quick: ["Быстрый", "Quick"],
     pro: ["Профессиональный", "Professional"],
     creative: ["Креативный", "Creative"],
