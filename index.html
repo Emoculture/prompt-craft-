@@ -13,6 +13,26 @@
     />
     <title>Director Studio</title>
     <style>
+.studio-nav { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+.studio-nav [aria-pressed="true"], .studio-timeline [aria-current="step"] { background:#6e45a8; }
+.studio-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:12px 0; }
+.studio-fields label { min-width:0; }
+.studio-fields select { width:100%; }
+.studio-preview { position:relative; width:min(100%,440px); overflow:hidden; border-radius:16px; margin:12px 0; }
+.studio-preview img { width:100%; max-height:320px; object-fit:contain; display:block; }
+.studio-output { white-space:pre-wrap; overflow-wrap:anywhere; }
+.studio-timeline { display:flex; gap:6px; overflow:auto; margin:12px 0; }
+.studio-timeline button { flex:0 0 auto; }
+.studio-status:not(:empty) { margin:10px 0; color:#e4d2ff; }
+.studio-fields textarea { width:100%; }
+@media (prefers-reduced-motion:no-preference) {
+  .studio-result:not([hidden]), .studio-preview:not([hidden]) { animation:appear .32s ease-out; }
+  .studio-nav button:active { transform:scale(.96); }
+  .studio-preview[aria-busy="true"]::after { content:""; position:absolute; inset:0; background:linear-gradient(transparent 40%,#be8fff88 50%,transparent 60%); animation:studio-scan 1.8s infinite ease-in-out; }
+  [aria-busy="true"] > .studio-status { animation:studio-pulse 1.1s alternate infinite; }
+}
+@keyframes studio-scan { from {transform:translateY(-80%)} to {transform:translateY(80%)} }
+@keyframes studio-pulse { from {opacity:.55} to {opacity:1} }
 .comparison { margin-top: 16px; }
 .comparison-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 .comparison-tabs button[aria-pressed="true"] { background: #8261ba55; box-shadow: inset 0 -2px #ccabff; }
@@ -4806,6 +4826,14 @@ dialog .section-heading {
         </div>
       </header>
       <main>
+        <nav class="studio-nav" aria-label="Director Studio">
+          <button type="button" class="secondary" data-studio="home" aria-pressed="true" data-i18n="studioHome">Промпты</button>
+          <button type="button" class="secondary" data-studio="scenario">Director Mode</button>
+          <button type="button" class="secondary" data-studio="image">Image to Prompt</button>
+          <button type="button" class="secondary" data-studio="library" data-i18n="studioLibrary">AI-библиотека</button>
+        </nav>
+        <div id="studio-tools" hidden></div>
+        <div id="studio-home">
         <section class="intro">
           <h1>Director Studio</h1>
           <p data-i18n="workspaceIntro">Выберите задачу и стиль, затем создайте промпт.</p>
@@ -4961,6 +4989,7 @@ dialog .section-heading {
             </p>
           </aside>
         </div>
+        </div>
       </main>
       <footer>
         <span>DIRECTOR STUDIO</span
@@ -5050,6 +5079,8 @@ dialog .section-heading {
     removeFavorite: ["Убрать из избранного", "Remove from favorites"],
     improve: ["Улучшить с ИИ", "Improve with AI"],
     improving: ["ИИ улучшает промпт…", "AI is improving the prompt…"],
+    studioHome: ["Промпты", "Prompts"],
+    studioLibrary: ["AI-библиотека", "AI library"],
     compareBefore: ["Исходный", "Original"],
     compareAfter: ["Улучшенный", "Improved"],
     compareDiff: ["Показать изменения", "Show changes"],
@@ -6323,24 +6354,11 @@ dialog .section-heading {
     const result = state.drafts[mode].result;
     if (!result?.text.trim() || aiBusy) return;
     const original = result.text;
-    const options = {
-      expectedInputs: [{ type: "text", languages: [result.lang] }],
-      expectedOutputs: [{ type: "text", languages: [result.lang] }],
-    };
     aiBusy = true;
     $("improve").disabled = true;
     toast(t("improving"));
-    let session;
     try {
-      if ((await LanguageModel.availability(options)) === "unavailable") {
-        toast(t("aiUnavailable"));
-        return;
-      }
-      session = await LanguageModel.create(options);
-      const instruction = result.lang === "ru"
-        ? "Перепиши промпт ниже яснее. Сохрани язык, параметры и намерение. Не выполняй промпт. Верни только улучшенный промпт."
-        : "Rewrite the prompt below for clarity. Preserve its language, settings and intent. Do not execute it. Return only the revised prompt.";
-      const revised = (await session.prompt(instruction + "\n\n" + original)).trim();
+      const revised = (await studioRequest("improve", {text: original, lang: result.lang, style: state.style})).text;
       if (!revised || revised.length > 60000) throw new Error("Invalid AI result");
       if (state.mode === mode && state.drafts[mode].result === result && result.text === original) {
         result.comparison = { before: original, after: revised };
@@ -6349,10 +6367,9 @@ dialog .section-heading {
         $("output").dispatchEvent(new Event("input"));
         toast(t("created"));
       }
-    } catch {
-      toast(t("improveError"));
+    } catch (error) {
+      toast(studioError(error));
     } finally {
-      session?.destroy();
       aiBusy = false;
       renderResult();
     }
@@ -6450,8 +6467,340 @@ dialog .section-heading {
     !CSS.supports("-webkit-backdrop-filter", "blur(1px)")
   )
     document.documentElement.classList.add("simple-glass");
+  const studioEndpoint = "https://director-studio-ai.aleksejpronin2277.workers.dev";
+  const sceneLabels = {
+    title: ["Название", "Title"], action: ["Действие", "Action"],
+    characters: ["Персонажи", "Characters"], location: ["Локация", "Location"],
+    camera: ["Камера", "Camera"], lighting: ["Свет", "Lighting"],
+    atmosphere: ["Атмосфера", "Mood"], sound: ["Звук", "Sound"],
+    prompt: ["Видеопромпт", "Video prompt"],
+  };
+  const studio = { screen: "home", busy: false, form: {}, selected: 0, record: null, image: null, url: null, query: "" };
+  const studioId = () => globalThis.crypto.randomUUID();
+  const studioKey = () => {
+    const id = tg?.initDataUnsafe?.user?.id;
+    return Number.isSafeInteger(id) ? "director-studio.ai.v1." + id : null;
+  };
+  function studioLoad() {
+    try { return JSON.parse(localStorage.getItem(studioKey())) || []; }
+    catch { return []; }
+  }
+  function studioSave(change) {
+    const key = studioKey();
+    if (!key) return toast(localized("Откройте Mini App в Telegram", "Open the Mini App in Telegram"));
+    try {
+      localStorage.setItem(key, JSON.stringify(change(studioLoad()).slice(0, 30)));
+      toast(localized("Сохранено", "Saved"));
+    } catch { toast(t("storageError")); }
+  }
+  async function studioRequest(route, data) {
+    if (!tg?.initData) throw new Error("telegram_required");
+    const response = await fetch(studioEndpoint + "/api/ai/" + route, {
+      method: "POST", headers: { "Content-Type": "application/json", "X-Telegram-Init-Data": tg.initData },
+      body: JSON.stringify(data), signal: AbortSignal.timeout(50000),
+    });
+    const result = await response.json();
+    if (!response.ok || !result || typeof result !== "object") throw new Error(result?.error || "provider_error");
+    return result;
+  }
+  function studioError(error) {
+    if (["telegram_required", "invalid_telegram"].includes(error.message))
+      return localized("Откройте Mini App заново через Telegram.", "Reopen the Mini App from Telegram.");
+    if (["rate_limit", "provider_limit"].includes(error.message))
+      return localized("Лимит запросов исчерпан. Попробуйте позже.", "Request limit reached. Try again later.");
+    if (["invalid_image", "image_too_large"].includes(error.message))
+      return localized("Выберите JPG, PNG или WebP до 3 МБ.", "Choose a JPG, PNG or WebP up to 3 MB.");
+    if (error.message === "invalid_prompt")
+      return localized("Введите промпт до 12 000 знаков.", "Enter a prompt of up to 12,000 characters.");
+    return localized("AI-сервис недоступен или не завершил запрос. Попробуйте позже.", "The AI service could not finish the request. Try again later.");
+  }
+  function studioNode(tag, text, className) {
+    const node = document.createElement(tag);
+    if (text) node.textContent = text;
+    if (className) node.className = className;
+    return node;
+  }
+  function studioButton(text, action) {
+    const button = studioNode("button", text, "secondary");
+    button.type = "button";
+    button.addEventListener("click", action);
+    return button;
+  }
+  async function studioCopy(text) {
+    try { await navigator.clipboard.writeText(text); toast(t("copied")); }
+    catch {
+      const field = studioNode("textarea");
+      field.value = text;
+      field.readOnly = true;
+      const panel = $("studio-tools").firstElementChild;
+      panel.append(field);
+      field.select();
+      field.addEventListener("blur", () => field.remove(), {once:true});
+      toast(t("copyFailed"));
+    }
+  }
+  function studioField(parent, key, label, choices, required = false) {
+    const wrapper = studioNode("label", label);
+    const field = studioNode(choices ? "select" : "textarea");
+    field.name = key;
+    if (choices) {
+      for (const [value, caption] of choices) {
+        const option = studioNode("option", caption);
+        option.value = value;
+        field.append(option);
+      }
+    } else {
+      field.rows = required ? 4 : 2;
+      field.maxLength = required ? 4000 : 2000;
+    }
+    field.required = required;
+    if (studio.form[key] !== undefined) field.value = studio.form[key];
+    field.addEventListener("input", () => { studio.form[key] = field.value; });
+    wrapper.append(field);
+    parent.append(wrapper);
+  }
+  const studioOptions = (items) => items.map(value => [String(value), String(value)]);
+  const translatedOptions = (items) => items.map(([ru, en]) => [en, localized(ru, en)]);
+  function studioText(record) {
+    if (record.type === "image") return record.text;
+    return record.scenes.map((scene, i) => [
+      (i + 1) + ". " + scene.title + " · " + scene.duration + "s",
+      ...Object.entries(sceneLabels).slice(1).map(([key, label]) => localized(...label) + ": " + scene[key]),
+    ].join("\n")).join("\n\n");
+  }
+  function studioStore(record, favorite = false) {
+    studioSave(items => {
+      const old = items.find(item => item.id === record.id);
+      return [{ ...record, favorite: favorite ? !old?.favorite : !!old?.favorite },
+        ...items.filter(item => item.id !== record.id)];
+    });
+    renderStudio();
+  }
+  async function studioRun(action) {
+    if (studio.busy) return;
+    studio.busy = true;
+    studio.error = "";
+    renderStudio();
+    try { await action(); haptic(); }
+    catch (error) { studio.error = studioError(error); }
+    finally { studio.busy = false; renderStudio(); }
+  }
+  function checkScenes(scenes, count, total) {
+    if (!Array.isArray(scenes) || scenes.length !== count ||
+      scenes.some(scene => !Number.isInteger(scene?.duration) || scene.duration < 1 ||
+        !Object.keys(sceneLabels).every(key => typeof scene[key] === "string" && scene[key].trim())) ||
+      scenes.reduce((sum, scene) => sum + scene.duration, 0) !== total) throw new Error("invalid_model_output");
+    return scenes;
+  }
+  function renderStoryboard(panel, record) {
+    const timeline = studioNode("div", "", "studio-timeline");
+    let start = 0;
+    record.scenes.forEach((scene, index) => {
+      const end = start + scene.duration;
+      const button = studioButton((index + 1) + " · " + start + "–" + end + " s", () => {
+        studio.selected = index;
+        renderStudio();
+        $("studio-tools").querySelector('[aria-current="step"]')?.focus();
+      });
+      if (index === studio.selected) button.setAttribute("aria-current", "step");
+      button.setAttribute("aria-label", button.textContent + " " + scene.title);
+      timeline.append(button);
+      start = end;
+    });
+    panel.append(timeline);
+    const index = studio.selected;
+    const scene = record.scenes[index];
+    const details = studioNode("div", "", "studio-result");
+    details.append(studioNode("h3", scene.title));
+    const action = studioNode("textarea");
+    const label = studioNode("label", localized(...sceneLabels.action));
+    action.value = scene.action;
+    action.maxLength = 2500;
+    action.addEventListener("input", () => { scene.action = action.value; });
+    label.append(action);
+    details.append(label);
+    const info = studioNode("dl");
+    for (const [key, captions] of Object.entries(sceneLabels).slice(2)) {
+      info.append(studioNode("dt", localized(...captions)),
+        studioNode("dd", scene[key], "studio-output"));
+    }
+    details.append(info);
+    const actions = studioNode("div", "", "result-actions");
+    actions.append(studioButton(localized("Копировать промпт", "Copy prompt"), () => studioCopy(scene.prompt)),
+      studioButton(localized("Перегенерировать сцену", "Regenerate scene"), () => studioRun(async () => {
+        const context = record.scenes.map((item, i) => {
+          const { prompt, ...brief } = item;
+          return { ...brief, action: brief.action.slice(0, 900), index: i };
+        });
+        const result = await studioRequest("scenario", { ...record.settings, sceneIndex: index, context: JSON.stringify(context) });
+        record.scenes[index] = checkScenes(result.scenes, 1, scene.duration)[0];
+      })));
+    details.append(actions);
+    panel.append(details);
+  }
+  function renderStudio() {
+    const host = $("studio-tools");
+    const screen = studio.screen;
+    $("studio-home").hidden = screen !== "home";
+    host.hidden = screen === "home";
+    for (const button of document.querySelectorAll("[data-studio]")) {
+      button.setAttribute("aria-pressed", String(button.dataset.studio === screen));
+      button.disabled = studio.busy;
+    }
+    if (screen === "home") return;
+    host.replaceChildren();
+    const panel = studioNode("section", "", "glass panel studio-result");
+    panel.setAttribute("aria-busy", String(studio.busy));
+    host.append(panel);
+    panel.append(studioNode("h2", screen === "scenario" ? "Director Mode" : screen === "image" ? "Image to Prompt" : t("studioLibrary")));
+    const status = studioNode("p", studio.busy ? localized("Gemini обрабатывает запрос…", "Gemini is working…") : studio.error, "studio-status");
+    status.setAttribute("role", "status");
+    panel.append(status);
+    if (screen === "library") {
+      const search = studioNode("input");
+      search.type = "search";
+      search.setAttribute("aria-label", t("searchPrompts"));
+      search.placeholder = t("searchPrompts");
+      search.value = studio.query;
+      const list = studioNode("div");
+      const update = () => {
+        studio.query = search.value;
+        list.replaceChildren();
+        for (const item of studioLoad()) {
+          if (!studioText(item).toLocaleLowerCase().includes(studio.query.trim().toLocaleLowerCase())) continue;
+          const row = studioNode("div", "", "history-item");
+          row.append(studioButton((item.favorite ? "♥ " : "") + studioText(item).slice(0, 88), () => {
+            studio.record = item; studio.screen = item.type; studio.selected = 0;
+            studio.form = { ...item.settings }; studio.error = ""; renderStudio();
+          }), studioButton(t("delete"), () => {
+            studioSave(items => items.filter(record => record.id !== item.id));
+            update();
+          }));
+          list.append(row);
+        }
+        if (!list.children.length) list.textContent = t("noMatches");
+      };
+      search.addEventListener("input", update);
+      panel.append(search, list);
+      update();
+      return;
+    }
+    const form = studioNode("form");
+    if (screen === "scenario") {
+      studioField(form, "idea", localized("Идея сценария", "Story idea"), null, true);
+      const grid = studioNode("div", "", "studio-fields");
+      studioField(grid, "genre", localized("Жанр", "Genre"), translatedOptions([
+        ["Фантастика","Sci-fi"], ["Ужасы","Horror"], ["Боевик","Action"], ["Драма","Drama"], ["Комедия","Comedy"], ["Аниме","Anime"], ["Другой","Other"],
+      ]));
+      studioField(grid, "visual", localized("Визуальный стиль", "Visual style"), translatedOptions([
+        ["Кинореализм","Cinematic realism"], ["Аниме","Anime"], ["3D","3D"], ["Документальный","Documentary"], ["Киберпанк","Cyberpunk"], ["Из пожеланий","From brief"],
+      ]));
+      studioField(grid, "count", localized("Сцен", "Scenes"), studioOptions([3, 5, 10]));
+      studioField(grid, "total", localized("Секунд", "Seconds"), studioOptions([15, 30, 60, 120]));
+      studioField(grid, "ratio", localized("Формат", "Aspect ratio"), studioOptions(["9:16", "16:9", "1:1"]));
+      form.append(grid);
+      studioField(form, "wishes", localized("Дополнительные пожелания", "Additional notes"));
+    } else {
+      const file = studioNode("input");
+      file.type = "file";
+      file.accept = "image/jpeg,image/png,image/webp";
+      file.setAttribute("aria-label", localized("Выбрать фото", "Choose photo"));
+      file.addEventListener("change", () => {
+        const chosen = file.files[0];
+        if (!chosen) return;
+        if (!["image/jpeg","image/png","image/webp"].includes(chosen.type) || chosen.size > 3 * 1024 * 1024) {
+          studio.error = studioError(new Error("invalid_image"));
+          renderStudio();
+          return;
+        }
+        if (studio.url) URL.revokeObjectURL(studio.url);
+        studio.image = chosen;
+        studio.url = URL.createObjectURL(chosen);
+        studio.error = "";
+        renderStudio();
+      });
+      form.append(file);
+      if (studio.url) {
+        const preview = studioNode("div", "", "studio-preview");
+        preview.setAttribute("aria-busy", String(studio.busy));
+        const img = studioNode("img");
+        img.src = studio.url;
+        img.alt = localized("Загруженное фото", "Uploaded photo");
+        preview.append(img);
+        form.append(preview, studioButton(localized("Удалить фото", "Remove photo"), () => {
+          URL.revokeObjectURL(studio.url); studio.url = studio.image = null; renderStudio();
+        }));
+      }
+      studioField(form, "style", localized("Стиль промпта", "Prompt style"), [
+        ["artistic",localized("Художественный","Artistic")], ["photorealistic",localized("Фотореалистичный","Photorealistic")],
+        ["cinematic",localized("Кинематографичный","Cinematic")], ["detailed",localized("Подробный","Detailed")],
+      ]);
+    }
+    const submit = studioNode("button", screen === "scenario" ? localized("Создать сценарий", "Create storyboard")
+      : studio.record?.type === "image" ? localized("Повторить анализ", "Analyze again") : localized("Анализировать фото", "Analyze photo"), "primary");
+    submit.disabled = screen === "image" && !studio.image;
+    form.append(submit);
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const settings = Object.fromEntries(new FormData(form));
+      delete settings.photo;
+      settings.lang = state.lang;
+      studioRun(async () => {
+        if (screen === "scenario") {
+          settings.count = Number(settings.count);
+          settings.total = Number(settings.total);
+          const result = await studioRequest("scenario", settings);
+          studio.record = { id: studioId(), type: screen, settings, date: Date.now(),
+            scenes: checkScenes(result.scenes, settings.count, settings.total) };
+          studio.selected = 0;
+        } else {
+          const file = studio.image;
+          const image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result).split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+          const result = await studioRequest("image-to-prompt", { ...settings, mime: file.type, image });
+          if (typeof result.text !== "string" || !result.text.trim()) throw new Error("invalid_model_output");
+          studio.record = { id: studioId(), type: screen, settings, date: Date.now(), text: result.text };
+        }
+      });
+    });
+    panel.append(form);
+    const record = studio.record?.type === screen ? studio.record : null;
+    if (record) {
+      if (screen === "scenario") renderStoryboard(panel, record);
+      else panel.append(studioNode("p", record.text, "studio-output studio-result"));
+      const actions = studioNode("div", "", "result-actions");
+      actions.append(studioButton(t("copy"), () => studioCopy(studioText(record))),
+        studioButton(localized("Сохранить", "Save"), () => studioStore(record)),
+        studioButton(studioLoad().find(item => item.id === record.id)?.favorite ? "♥" : "♡",
+          () => studioStore(record, true)));
+      const favorite = actions.lastElementChild;
+      favorite.setAttribute("aria-label", t(favorite.textContent === "♥" ? "removeFavorite" : "saveFavorite"));
+      if (screen === "image") actions.append(studioButton(t("improve"), () => studioRun(async () => {
+        const result = await studioRequest("improve", {text: record.text, lang: record.settings.lang, style: state.style});
+        if (typeof result.text !== "string" || !result.text.trim()) throw new Error("invalid_model_output");
+        record.text = result.text;
+      })));
+      panel.append(actions);
+    }
+    if (studio.busy) panel.querySelectorAll("button,input,textarea,select").forEach(node => { node.disabled = true; });
+  }
+  for (const button of document.querySelectorAll("[data-studio]")) {
+    button.addEventListener("click", () => {
+      if (studio.screen !== button.dataset.studio) studio.form = studio.record?.type === button.dataset.studio ? { ...studio.record.settings } : {};
+      studio.screen = button.dataset.studio;
+      studio.error = "";
+      renderStudio();
+      haptic();
+    });
+  }
+  document.querySelectorAll("[data-lang]").forEach(button => button.addEventListener("click", renderStudio));
+
   function boot() {
-    $("improve").hidden = !globalThis.LanguageModel?.availability;
+    $("improve").hidden = false;
     tg = window.Telegram?.WebApp;
     initTelegram();
     render();
