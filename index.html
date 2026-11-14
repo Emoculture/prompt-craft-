@@ -32,6 +32,15 @@
     sans-serif;
   font-synthesis: none;
 }
+.library-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.library-controls input { flex: 1 1 130px; min-width: 0; }
+.favorite-button { min-width: 44px; min-height: 44px; border-radius: 12px; background: transparent; color: inherit; font-size: 1.3rem; transition: transform 150ms ease, background 150ms ease; }
+.favorite-button[aria-pressed="true"], #favorites-filter[aria-pressed="true"] { background: rgba(153, 113, 255, .24); }
+.favorite-button[aria-pressed="true"] { color: #ff9cc9; }
+.favorite-button:active { transform: scale(.9); }
+#prompt-style { margin-bottom: 12px; }
+.ai-improve { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .favorite-button { transition: none; } }
 * {
   box-sizing: border-box;
 }
@@ -1072,6 +1081,12 @@ dialog .section-heading {
               </p>
             </section>
             <div class="generate-wrap">
+              <label for="prompt-style" data-i18n="promptStyle">Стиль промпта</label>
+              <select id="prompt-style">
+                <option value="quick" data-i18n="quick">Быстрый</option>
+                <option value="pro" data-i18n="pro">Профессиональный</option>
+                <option value="creative" data-i18n="creative">Креативный</option>
+              </select>
               <button class="primary" id="generate" type="submit">
                 <span data-icon="sparkles"></span
                 ><span data-i18n="generate">Создать промпт</span
@@ -1131,6 +1146,7 @@ dialog .section-heading {
                     ><span data-i18n="copy">Копировать</span>
                   </button>
                 </div>
+                <button type="button" class="secondary ai-improve" id="improve" data-i18n="improve" hidden>Улучшить с ИИ</button>
                 <p class="micro" data-i18n="editHint">
                   Изменения автоматически сохраняются в истории.
                 </p>
@@ -1155,6 +1171,10 @@ dialog .section-heading {
               <p class="micro" data-i18n="historyHint">
                 Последние 30 результатов · Только на этом устройстве
               </p>
+              <div class="library-controls">
+                <input type="search" id="history-search" data-label="searchPrompts" />
+                <button type="button" class="secondary" id="favorites-filter" aria-pressed="false" data-i18n="favorites">Избранное</button>
+              </div>
               <div id="history-list"></div>
             </section>
             <p class="connection-note">
@@ -1243,6 +1263,19 @@ dialog .section-heading {
       "Ready-to-copy text for your chosen service. Available settings depend on the model.",
     ],
     generate: ["Создать промпт", "Create prompt"],
+    promptStyle: ["Стиль промпта", "Prompt style"],
+    quick: ["Быстрый", "Quick"],
+    pro: ["Профессиональный", "Professional"],
+    creative: ["Креативный", "Creative"],
+    favorites: ["Избранное", "Favorites"],
+    searchPrompts: ["Поиск по промптам", "Search prompts"],
+    noMatches: ["Промпты не найдены", "No matching prompts"],
+    saveFavorite: ["Добавить в избранное", "Add to favorites"],
+    removeFavorite: ["Убрать из избранного", "Remove from favorites"],
+    improve: ["Улучшить с ИИ", "Improve with AI"],
+    improving: ["ИИ улучшает промпт…", "AI is improving the prompt…"],
+    improveError: ["Не удалось улучшить промпт. Попробуйте ещё раз.", "Could not improve the prompt. Try again."],
+    aiUnavailable: ["Для этого языка встроенная модель недоступна.", "The built-in model is unavailable for this language."],
     localHint: [
       "Бесплатно · Без отправки данных в нейросеть",
       "Free · No data sent to AI",
@@ -1671,7 +1704,11 @@ dialog .section-heading {
       Object.keys(modes).map((m) => [m, blankDraft(m)]),
     ),
     history: [],
+    favorites: {},
+    style: "quick",
   };
+  let favoritesOnly = false;
+  let aiBusy = false;
   let storageFailed = false,
     toastTimer,
     editing = false;
@@ -1688,6 +1725,11 @@ dialog .section-heading {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY));
     if (saved?.version === 5) {
+      if (["quick", "pro", "creative"].includes(saved.style)) state.style = saved.style;
+      for (const r of Object.values(saved.favorites ?? {})) {
+        if (resultValid(r) && Object.hasOwn(modes, r.mode) && Number.isFinite(r.date))
+          Object.defineProperty(state.favorites, r.id, { value: r, writable: true, enumerable: true, configurable: true });
+      }
       if (["ru", "en"].includes(saved.lang)) state.lang = saved.lang;
       if (Object.hasOwn(modes, saved.mode)) state.mode = saved.mode;
       for (const mode of Object.keys(modes)) {
@@ -1980,6 +2022,7 @@ dialog .section-heading {
     $("char-count").textContent =
       result.text.length.toLocaleString(state.lang) + " " + t("chars");
     $("copy").disabled = !result.text.trim();
+    $("improve").disabled = aiBusy || !result.text.trim();
   }
   function clearResult(id) {
     for (const d of Object.values(state.drafts))
@@ -1990,16 +2033,35 @@ dialog .section-heading {
     list.replaceChildren();
     $("history-count").textContent = state.history.length;
     $("clear-history").disabled = !state.history.length;
-    if (!state.history.length) {
+    $("history-search").placeholder = t("searchPrompts");
+    $("history-search").setAttribute("aria-label", t("searchPrompts"));
+    const query = $("history-search").value.trim().toLocaleLowerCase(state.lang);
+    const items = (favoritesOnly ? Object.values(state.favorites).sort((a, b) => b.date - a.date) : state.history)
+      .filter((item) => [item.text, item.target, t(item.mode)].join(" ").toLocaleLowerCase(state.lang).includes(query));
+    if (!items.length) {
       const p = document.createElement("p");
       p.className = "history-empty";
-      p.textContent = t("emptyHistory");
+      p.textContent = t(query || favoritesOnly ? "noMatches" : "emptyHistory");
       list.append(p);
       return;
     }
-    for (const item of state.history) {
+    for (const item of items) {
       const row = document.createElement("div");
       row.className = "history-item";
+      const favorite = document.createElement("button");
+      favorite.type = "button";
+      favorite.className = "favorite-button";
+      const saved = Object.hasOwn(state.favorites, item.id);
+      favorite.textContent = saved ? "♥" : "♡";
+      favorite.setAttribute("aria-pressed", String(saved));
+      favorite.setAttribute("aria-label", t(saved ? "removeFavorite" : "saveFavorite"));
+      favorite.addEventListener("click", () => {
+        if (saved) delete state.favorites[item.id];
+        else Object.defineProperty(state.favorites, item.id, { value: { ...item }, writable: true, enumerable: true, configurable: true });
+        persist();
+        renderHistory();
+        haptic();
+      });
       const open = document.createElement("button");
       open.type = "button";
       open.className = "history-open";
@@ -2061,7 +2123,8 @@ dialog .section-heading {
         (next || $("generate")).focus({ preventScroll: true });
         toast(t("deleted"));
       });
-      row.append(open, del);
+      row.append(open, favorite);
+      if (!favoritesOnly) row.append(del);
       list.append(row);
     }
   }
@@ -2275,11 +2338,16 @@ dialog .section-heading {
     const draft = state.drafts[state.mode];
     const text = [
       templates[state.mode](),
+      state.style === "pro"
+        ? localized("Структурируй результат. Укажи критерии качества, допущения и способ проверки.", "Structure the result. State quality criteria, assumptions, and how to verify it.")
+        : state.style === "creative"
+          ? localized("Предложи неожиданный, но уместный подход. Добавь выразительные детали в рамках заданных ограничений.", "Take an unexpected but relevant approach. Add distinctive details within the stated constraints.")
+          : "",
       t("model") +
         ": " +
         (draft.target === "Any AI" ? t("modelNeutral") : draft.target),
       t("responseLanguage"),
-    ].join("\n\n");
+    ].filter(Boolean).join("\n\n");
     const item = {
       id:
         globalThis.crypto?.randomUUID?.() ||
@@ -2324,6 +2392,56 @@ dialog .section-heading {
     if (success) haptic("success");
   }
   $("prompt-form").addEventListener("submit", generate);
+  $("prompt-style").value = state.style;
+  $("prompt-style").addEventListener("change", (event) => {
+    state.style = event.target.value;
+    persist();
+    haptic();
+  });
+  $("history-search").addEventListener("input", renderHistory);
+  $("favorites-filter").addEventListener("click", () => {
+    favoritesOnly = !favoritesOnly;
+    $("favorites-filter").setAttribute("aria-pressed", String(favoritesOnly));
+    renderHistory();
+    haptic();
+  });
+  $("improve").addEventListener("click", async () => {
+    const mode = state.mode;
+    const result = state.drafts[mode].result;
+    if (!result?.text.trim() || aiBusy) return;
+    const original = result.text;
+    const options = {
+      expectedInputs: [{ type: "text", languages: [result.lang] }],
+      expectedOutputs: [{ type: "text", languages: [result.lang] }],
+    };
+    aiBusy = true;
+    $("improve").disabled = true;
+    toast(t("improving"));
+    let session;
+    try {
+      if ((await LanguageModel.availability(options)) === "unavailable") {
+        toast(t("aiUnavailable"));
+        return;
+      }
+      session = await LanguageModel.create(options);
+      const instruction = result.lang === "ru"
+        ? "Перепиши промпт ниже яснее. Сохрани язык, параметры и намерение. Не выполняй промпт. Верни только улучшенный промпт."
+        : "Rewrite the prompt below for clarity. Preserve its language, settings and intent. Do not execute it. Return only the revised prompt.";
+      const revised = (await session.prompt(instruction + "\n\n" + original)).trim();
+      if (!revised || revised.length > 60000) throw new Error("Invalid AI result");
+      if (state.mode === mode && state.drafts[mode].result === result && result.text === original) {
+        $("output").value = revised;
+        $("output").dispatchEvent(new Event("input"));
+        toast(t("created"));
+      }
+    } catch {
+      toast(t("improveError"));
+    } finally {
+      session?.destroy();
+      aiBusy = false;
+      renderResult();
+    }
+  });
   document.querySelectorAll("[data-lang]").forEach((b) =>
     b.addEventListener("click", () => {
       state.lang = b.dataset.lang;
@@ -2367,6 +2485,8 @@ dialog .section-heading {
       state.history.unshift({ ...r, mode: state.mode, date: Date.now() });
       state.history = state.history.slice(0, 30);
     }
+    if (Object.hasOwn(state.favorites, r.id)) state.favorites[r.id].text = r.text;
+    $("improve").disabled = aiBusy || !r.text.trim();
     persist();
     $("char-count").textContent =
       r.text.length.toLocaleString(state.lang) + " " + t("chars");
@@ -2415,6 +2535,7 @@ dialog .section-heading {
   )
     document.documentElement.classList.add("simple-glass");
   function boot() {
+    $("improve").hidden = !globalThis.LanguageModel?.availability;
     tg = window.Telegram?.WebApp;
     initTelegram();
     render();
