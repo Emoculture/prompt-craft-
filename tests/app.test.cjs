@@ -56,8 +56,14 @@ async function run() {
       hasTouch: true,
       permissions: ["clipboard-read", "clipboard-write"],
     });
-    await context.route("https://telegram.org/js/telegram-web-app.js", (r) =>
-      r.fulfill({ contentType: "text/javascript", body: bridge }),
+    const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+    const sdk = /<script data-telegram-sdk>[\s\S]*?<\/script>/;
+    assert.match(html, sdk);
+    await context.route(url + "/", (r) =>
+      r.fulfill({
+        contentType: "text/html; charset=utf-8",
+        body: html.replace(sdk, () => "<script>" + bridge + "</script>"),
+      }),
     );
     const page = await context.newPage();
     page.on("pageerror", (e) => errors.push(e.message));
@@ -322,7 +328,7 @@ async function run() {
     // Single-file release initializes the deferred Telegram bridge too.
     const release = await context.newPage();
     release.on("pageerror", (e) => errors.push(e.message));
-    await release.goto(url + "/dist/index.html");
+    await release.goto(url);
     await release.locator("#random").click();
     await release.locator("#generate").click();
     assert.equal(await release.locator("#result-content").isVisible(), true);
