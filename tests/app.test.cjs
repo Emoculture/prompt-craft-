@@ -39,7 +39,7 @@ const server = http.createServer((req, res) => {
     res.end(data);
   });
 });
-const bridge = `window.__tgCalls=[];window.__tgEvents={};window.Telegram={WebApp:{viewportStableHeight:844,safeAreaInset:{top:12,bottom:10},contentSafeAreaInset:{top:8,bottom:4},isVersionAtLeast:()=>true,ready:()=>__tgCalls.push('ready'),expand:()=>__tgCalls.push('expand'),onEvent:(name,fn)=>__tgEvents[name]=fn,HapticFeedback:{selectionChanged:()=>__tgCalls.push('selection'),notificationOccurred:(kind)=>__tgCalls.push(kind)}}};`;
+const bridge = `window.__tgCalls=[];window.__tgEvents={};window.Telegram={WebApp:{initData:"test-init-data",initDataUnsafe:{user:{id:123}},viewportStableHeight:844,safeAreaInset:{top:12,bottom:10},contentSafeAreaInset:{top:8,bottom:4},isVersionAtLeast:()=>true,ready:()=>__tgCalls.push('ready'),expand:()=>__tgCalls.push('expand'),onEvent:(name,fn)=>__tgEvents[name]=fn,HapticFeedback:{selectionChanged:()=>__tgCalls.push('selection'),notificationOccurred:(kind)=>__tgCalls.push(kind)}}};`;
 const errors = [];
 async function run() {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -66,14 +66,26 @@ async function run() {
       }),
     );
     const page = await context.newPage();
-    await page.addInitScript(() => {
-      window.LanguageModel = {
-        availability: async () => "available",
-        create: async () => ({
-          prompt: async () => "Проверенный улучшенный промпт\nРучная правка",
-          destroy() {},
-        }),
+    await context.route("https://director-studio-ai.aleksejpronin2277.workers.dev/api/ai/*", async route => {
+      const headers = {
+        "access-control-allow-origin": url,
+        "access-control-allow-headers": "content-type,x-telegram-init-data",
+        "access-control-allow-methods": "POST",
       };
+      if (route.request().method() === "OPTIONS") return route.fulfill({status: 204, headers});
+      const data = route.request().postDataJSON();
+      const path = route.request().url().split("/").at(-1);
+      if (path === "improve") return route.fulfill({headers, json: {text: "Проверенный улучшенный промпт\nРучная правка"}});
+      if (path === "image-to-prompt") {
+        assert.ok(data.image);
+        return route.fulfill({headers, json: {text: "Cinematic photo prompt"}});
+      }
+      const scenes = Array.from({length: data.count}, (_, i) => ({
+        title: "Scene " + (i + 1), action: "Action", characters: "Cast", location: "Set",
+        camera: "Pan", lighting: "Soft light", atmosphere: "Quiet", sound: "Rain", prompt: "Video prompt",
+        duration: Math.floor((i + 1) * data.total / data.count) - Math.floor(i * data.total / data.count),
+      }));
+      return route.fulfill({headers, json: {scenes: data.sceneIndex === undefined ? scenes : [scenes[data.sceneIndex]]}});
     });
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto(url);
@@ -347,6 +359,31 @@ async function run() {
     await p2.locator("#random").click();
     await p2.locator("#generate").click();
     assert.equal(await p2.locator("#result-content").isVisible(), true);
+    await page.locator('[data-studio="scenario"]').click();
+    await page.locator('#studio-tools [name="idea"]').fill("A quiet station by the sea");
+    for (const count of [3, 5, 10]) {
+      await page.locator('#studio-tools [name="count"]').selectOption(String(count));
+      await page.locator('#studio-tools [name="total"]').selectOption("30");
+      await page.locator('#studio-tools button.primary').click();
+      await page.locator('#studio-tools [aria-busy="false"] .studio-timeline').waitFor();
+      assert.equal(await page.locator(".studio-timeline button").count(), count);
+      assert.match(await page.locator(".studio-timeline button").last().textContent(), /–30 s$/);
+    }
+    await page.locator(".studio-timeline button").last().click();
+    await page.locator('#studio-tools textarea').last().fill("Edited action");
+    await page.locator('#studio-tools button').filter({hasText:/Regenerate scene|Перегенерировать сцену/}).click();
+    await page.locator('#studio-tools [aria-busy="false"] .studio-timeline').waitFor();
+    await page.locator('[data-studio="image"]').click();
+    const input = page.locator('#studio-tools input[type="file"]');
+    for (const [extension, mimeType] of [["jpg","image/jpeg"], ["png","image/png"], ["webp","image/webp"]]) {
+      await input.setInputFiles({name: "fixture." + extension, mimeType, buffer: Buffer.from("mock-image")});
+      await page.locator('#studio-tools button.primary').click();
+      await page.getByText("Cinematic photo prompt", {exact:true}).waitFor();
+      await page.locator('#studio-tools [aria-busy="false"]').first().waitFor();
+    }
+    await page.locator('#studio-tools button').filter({hasText:/^Save$|^Сохранить$/}).click();
+    await page.locator('[data-studio="library"]').click();
+    assert.equal(await page.getByRole("button", {name: "Cinematic photo prompt"}).count(), 1);
     // Single-file release initializes the deferred Telegram bridge too.
     const release = await context.newPage();
     release.on("pageerror", (e) => errors.push(e.message));
