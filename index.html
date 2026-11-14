@@ -1,737 +1,2430 @@
-<!DOCTYPE html>
-<html lang="ru" class="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Director Studio Pro — Apple Edition</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            apple: {
-              black: '#000000',
-              space: '#0b0c0e',
-              card: 'rgba(28, 28, 30, 0.72)',
-              cardHover: 'rgba(44, 44, 46, 0.85)',
-              border: 'rgba(255, 255, 255, 0.1)',
-              borderActive: 'rgba(10, 132, 255, 0.65)',
-              blue: '#0A84FF',
-              blueGlow: 'rgba(10, 132, 255, 0.18)',
-              secondary: '#8E8E93',
-              gold: '#FFD60A'
-            }
-          },
-          fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'system-ui', 'sans-serif']
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body {
-      background-color: #000000;
-      color: #F5F5F7;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    .glass-card {
-      background: rgba(28, 28, 30, 0.65);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-    }
-    .option-card {
-      background: rgba(38, 38, 42, 0.55);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .option-card:active {
-      transform: scale(0.975);
-    }
-    .option-card.active {
-      background: rgba(10, 132, 255, 0.14);
-      border-color: rgba(10, 132, 255, 0.75);
-      box-shadow: 0 0 20px rgba(10, 132, 255, 0.22), inset 0 0 0 1px rgba(10, 132, 255, 0.5);
-    }
-    .option-card.active .icon-box {
-      color: #0A84FF;
-      background: rgba(10, 132, 255, 0.2);
-    }
-    .option-card.active .title-text {
-      color: #FFFFFF;
-      font-weight: 600;
-    }
-    .apple-btn {
-      background: #0A84FF;
-      color: #FFFFFF;
-      border-radius: 14px;
-      font-weight: 600;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .apple-btn:active {
-      transform: scale(0.98);
-      background: #0071E3;
-    }
-    input[type=range] {
-      accent-color: #0A84FF;
-    }
-    ::-webkit-scrollbar {
-      display: none;
-    }
-  </style>
-</head>
-<body class="p-3 pb-24 max-w-xl mx-auto min-h-screen">
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#101222" />
+    <meta
+      name="description"
+      content="Director Studio — your creative prompt workspace."
+    />
+    <title>Director Studio</title>
+    <style>
+:root {
+  color-scheme: dark;
+  --bg: #101222;
+  --text: #f3f3ff;
+  --muted: #a6adc7;
+  --line: rgba(211, 213, 255, 0.16);
+  --accent: #b4a0ff;
+  --safe-top: 0px;
+  --safe-bottom: 0px;
+  --safe-left: 0px;
+  --safe-right: 0px;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+  min-height: var(--tg-viewport-stable-height, 100dvh);
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button,
+a,
+select,
+input[type="range"] {
+  touch-action: manipulation;
+}
+button {
+  cursor: pointer;
+  color: inherit;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+button {
+  border: 0;
+}
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #d3c6ff;
+  outline-offset: 4px;
+}
+button,
+select {
+  transition:
+    background 0.18s,
+    border-color 0.18s,
+    box-shadow 0.18s,
+    transform 0.18s;
+}
+svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h2 {
+  font-size: 19px;
+  letter-spacing: -0.5px;
+  font-weight: 600;
+}
+h3 {
+  font-size: 17px;
+  font-weight: 550;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+[hidden] {
+  display: none !important;
+}
+.ambient {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 10% 5%, #26294d 0, transparent 55%),
+    radial-gradient(ellipse at 100% 75%, #1c3644 0, transparent 60%), #101222;
+}
+.ambient i {
+  position: absolute;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #7756bd38, transparent 66%);
+  top: -120px;
+  left: 30%;
+  animation: drift 24s ease-in-out infinite alternate;
+}
+.ambient i:nth-child(2) {
+  background: radial-gradient(circle, #4b98b32b, transparent 65%);
+  top: 50%;
+  left: -250px;
+  animation-delay: -8s;
+}
+.ambient i:nth-child(3) {
+  background: radial-gradient(circle, #a4518726, transparent 65%);
+  top: 15%;
+  left: 65%;
+  animation-delay: -16s;
+}
+.shell {
+  max-width: 1120px;
+  margin: auto;
+  padding: calc(24px + max(env(safe-area-inset-top, 0px), var(--safe-top)))
+    max(28px, env(safe-area-inset-right, 0px), var(--safe-right))
+    calc(20px + max(env(safe-area-inset-bottom, 0px), var(--safe-bottom)))
+    max(28px, env(safe-area-inset-left, 0px), var(--safe-left));
+}
+.glass {
+  border: 1px solid var(--line);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.075),
+    rgba(255, 255, 255, 0.025)
+  );
+  box-shadow:
+    inset 0 1px 0 #ffffff0c,
+    0 12px 35px #04071224;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-radius: 24px;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  gap: 12px;
+  border-radius: 20px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 19px;
+  line-height: 1.1;
+  font-weight: 650;
+  letter-spacing: -0.7px;
+}
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #c5b6ff, #8772d5);
+  border-radius: 13px;
+  color: #201d36;
+  box-shadow: 0 0 25px #aa8dff26;
+}
+.brand-icon svg {
+  width: 27px;
+  height: 27px;
+}
+.brand-sub {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--muted);
+  margin-top: 5px;
+  font-weight: 500;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.language {
+  display: flex;
+  gap: 2px;
+  background: #080a1b55;
+  padding: 3px;
+  border: 1px solid #ffffff0a;
+  border-radius: 11px;
+}
+.language button {
+  font-size: 11px;
+  padding: 8px;
+  min-height: 38px;
+  background: none;
+  color: var(--muted);
+  border-radius: 8px;
+}
+.language button[aria-pressed="true"] {
+  background: #ffffff15;
+  color: #fff;
+  box-shadow: 0 2px 5px #0002;
+}
+.stars-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  min-height: 44px;
+  border-radius: 12px;
+  background: #e9b9680e;
+  border: 1px solid #e9b96826;
+  color: #f2cd90;
+  font-size: 12px;
+}
+.stars-button svg {
+  width: 17px;
+}
+.stars-button small {
+  display: block;
+  font-size: 9px;
+  color: #ccb38a;
+}
+.intro {
+  padding: 42px 2px 28px;
+}
+.eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.9px;
+  color: #b8b0d5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: #b6a5ff;
+  border-radius: 100%;
+  box-shadow: 0 0 12px #b6a5ff88;
+}
+.intro h1 {
+  font-size: clamp(30px, 4.5vw, 46px);
+  font-weight: 550;
+  line-height: 1.13;
+  letter-spacing: -1.9px;
+  max-width: 700px;
+  margin: 14px 0;
+}
+.intro p {
+  color: var(--muted);
+  font-size: 14px;
+}
+.mode-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 6px;
+  gap: 6px;
+  border-radius: 19px;
+  margin-bottom: 24px;
+}
+.mode-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 4px;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid transparent;
+  border-radius: 13px;
+  min-width: 0;
+}
+.mode-button[aria-pressed="true"] {
+  background: linear-gradient(120deg, #b5a0ff27, #9d94ff10);
+  color: #e5ddff;
+  border-color: #c5b4ff40;
+  box-shadow:
+    0 3px 12px #0002,
+    inset 0 1px #ffffff0a;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: 1.12fr 1fr;
+  align-items: start;
+  gap: 24px;
+  min-width: 0;
+}
+form,
+.result-column {
+  min-width: 0;
+}
+.panel {
+  padding: 23px;
+  margin-bottom: 18px;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.section-heading .eyebrow {
+  margin-bottom: 7px;
+  font-size: 9px;
+}
+.section-heading h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.section-symbol {
+  color: #b4aacb;
+}
+.quiet-button,
+.text-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  color: #c7b8ff;
+  min-height: 44px;
+  padding: 6px;
+  font-size: 12px;
+}
+.quiet-button svg {
+  width: 15px;
+}
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 8px 0 14px;
+}
+.field {
+  display: block;
+  min-width: 0;
+  margin-top: 15px;
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.field-grid .field {
+  margin: 0;
+}
+.field.wide {
+  grid-column: 1/-1;
+}
+label,
+.field-label {
+  display: block;
+  color: #d3d3e7;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  min-width: 0;
+  background: #0a0d2066;
+  border: 1px solid #c4c7ff20;
+  border-radius: 12px;
+  color: var(--text);
+  outline: none;
+  padding: 12px;
+  transition:
+    border-color 0.18s,
+    background 0.18s;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #b9a4ff99;
+  background: #11142a;
+  box-shadow: 0 0 0 3px #a38cff12;
+}
+textarea {
+  resize: vertical;
+  display: block;
+  line-height: 1.65;
+  min-height: 92px;
+  overflow-wrap: anywhere;
+}
+textarea::placeholder,
+input::placeholder {
+  color: #7f87a4;
+  opacity: 1;
+}
+select {
+  padding-right: 26px;
+  min-height: 46px;
+  text-overflow: ellipsis;
+}
+option {
+  background: #191c30;
+  color: #f3f3ff;
+}
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.choice {
+  background: #ffffff04;
+  border: 1px solid #c4c7ff17;
+  border-radius: 11px;
+  padding: 11px 9px;
+  min-height: 48px;
+  text-align: left;
+  color: #b8bfd7;
+  font-size: 12px;
+}
+.choice[aria-pressed="true"] {
+  border-color: #b9a4ff77;
+  background: linear-gradient(130deg, #b5a0ff22, #b5a0ff0b);
+  color: #ece5ff;
+  box-shadow:
+    inset 0 1px #ffffff10,
+    0 0 16px #ac8aff09;
+}
+.choice[aria-pressed="true"]:before {
+  content: "•";
+  color: #c1adff;
+  margin-right: 6px;
+}
+input[type="range"] {
+  accent-color: #b5a0ff;
+  padding: 4px 0;
+  box-shadow: none;
+  border: 0;
+  min-height: 36px;
+  background: transparent;
+}
+.range-label {
+  display: flex;
+  justify-content: space-between;
+}
+.range-label output {
+  color: #cbbcff;
+}
+.target-panel select {
+  margin-top: 3px;
+}
+.target-panel .hint {
+  margin-bottom: 0;
+  font-size: 11px;
+}
+.primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 17px 18px;
+  min-height: 56px;
+  border: 1px solid #e6daff55;
+  border-radius: 16px;
+  background: linear-gradient(110deg, #cfbfff, #aca2f6);
+  color: #231c42;
+  font-size: 15px;
+  font-weight: 650;
+  box-shadow:
+    0 5px 28px #a68af928,
+    inset 0 1px #fff5;
+}
+.primary:hover {
+  box-shadow: 0 5px 34px #a68af94a;
+}
+.arrow {
+  margin-left: auto;
+  font-size: 21px;
+}
+.primary > svg {
+  margin-right: auto;
+}
+.micro {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.generate-wrap > .micro {
+  text-align: center;
+  margin: 10px 0 20px;
+}
+.result-panel {
+  background: linear-gradient(140deg, #bcb1ff12, #d2e4ff05);
+}
+#empty-result {
+  text-align: center;
+  padding: 30px 10px 38px;
+  color: var(--muted);
+}
+.empty-art {
+  display: grid;
+  place-items: center;
+  margin: 0 auto 22px;
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #b4a0ff1c, #b4a0ff04);
+  border: 1px solid #c5b4ff33;
+  box-shadow: 0 0 50px #a68af90d;
+  transform: rotate(-8deg);
+  color: #c6b4ff;
+}
+.empty-art svg {
+  width: 32px;
+  height: 32px;
+  transform: rotate(8deg);
+}
+#empty-result h3 {
+  color: #e0dcef;
+  margin-bottom: 10px;
+}
+#empty-result p {
+  font-size: 12px;
+  max-width: 240px;
+  margin: auto;
+}
+.empty-lines {
+  margin: 26px auto 0;
+  width: 140px;
+  display: grid;
+  gap: 7px;
+}
+.empty-lines i {
+  height: 5px;
+  border-radius: 5px;
+  background: #c9c4ff0d;
+}
+.empty-lines i:nth-child(2) {
+  width: 80%;
+  margin: auto;
+}
+.empty-lines i:nth-child(3) {
+  width: 55%;
+  margin: auto;
+}
+.result-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.badge {
+  font-size: 10px;
+  border: 1px solid #baabff30;
+  color: #d3c7ff;
+  background: #aa92ff0a;
+  border-radius: 7px;
+  padding: 4px 8px;
+  display: inline-block;
+}
+.result-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 8px;
+  border-radius: 11px;
+  border: 1px solid var(--line);
+  background: #ffffff06;
+  font-size: 12px;
+}
+.secondary svg {
+  width: 15px;
+}
+.secondary.accent {
+  color: #d4c7ff;
+  background: #b5a0ff15;
+  border-color: #c5b4ff33;
+}
+#output {
+  font-family: inherit;
+  font-size: 13px;
+  min-height: 280px;
+  max-height: 65dvh;
+  background: #080c1b55;
+}
+#output:read-only {
+  border-color: #c4c7ff12;
+}
+#output:not(:read-only) {
+  border-color: #b5a0ff88;
+}
+.result-actions + .micro {
+  margin-top: 10px;
+}
+.history-panel .section-heading {
+  margin-bottom: 8px;
+}
+.history-panel h2 {
+  font-size: 16px;
+}
+.history-panel h2 svg {
+  width: 17px;
+}
+.count {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #fff1;
+  color: var(--muted);
+}
+.history-empty {
+  padding: 22px 0 8px;
+  font-size: 12px;
+  color: #8f98b5;
+}
+.history-item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  border-top: 1px solid #ffffff0a;
+  padding: 10px 0;
+  margin-top: 4px;
+}
+.history-open {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  text-align: left;
+  padding: 5px 0;
+  background: transparent;
+}
+.history-open strong {
+  font-size: 12px;
+  font-weight: 500;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.history-open small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 4px;
+}
+.icon-button {
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--muted);
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+}
+.icon-button:hover {
+  background: #fff1;
+  color: #fff;
+}
+.icon-button svg {
+  width: 17px;
+}
+.connection-note {
+  display: flex;
+  gap: 9px;
+  padding: 0 8px;
+  color: #929bb5;
+  font-size: 11px;
+  line-height: 1.7;
+}
+.connection-note svg {
+  width: 15px;
+  margin-top: 3px;
+}
+.result-pop {
+  animation: appear 0.32s ease-out;
+}
+.mode-panel {
+  animation: appear 0.25s ease-out;
+}
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid #ffffff0a;
+  margin-top: 32px;
+  padding: 18px 3px;
+  color: #8189a5;
+  font-size: 10px;
+}
+footer > span:first-child {
+  letter-spacing: 2px;
+  font-size: 9px;
+}
+dialog {
+  color: var(--text);
+  width: calc(100% - 28px);
+  max-width: 430px;
+  padding: 24px;
+  max-height: 85dvh;
+  overflow: auto;
+  background: linear-gradient(140deg, #302c49, #181e32) !important;
+}
+dialog::backdrop {
+  background: #040712bb;
+  backdrop-filter: blur(6px);
+}
+dialog p {
+  margin: 16px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+dialog .section-heading {
+  margin-bottom: 10px;
+}
+.packages {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.packages button {
+  background: #dabb6f12;
+  border: 1px solid #dabb6f33;
+  border-radius: 13px;
+  padding: 18px 10px;
+  font-size: 20px;
+  color: #eacb8d;
+}
+.packages button span {
+  display: block;
+  font-size: 11px;
+  margin-top: 5px;
+}
+.danger {
+  color: #ffb8c6;
+  border-color: #ffb8c633;
+}
+#toast {
+  position: fixed;
+  bottom: calc(
+    22px + max(env(safe-area-inset-bottom, 0px), var(--safe-bottom))
+  );
+  left: 50%;
+  transform: translate(-50%, 12px);
+  background: #e6dfff;
+  color: #241c3d;
+  border-radius: 13px;
+  padding: 12px 18px;
+  box-shadow: 0 8px 35px #0005;
+  max-width: calc(100% - 32px);
+  width: max-content;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+  font-size: 13px;
+  z-index: 100;
+}
+#toast.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+#history-list {
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #a596c744 transparent;
+}
+@keyframes drift {
+  to {
+    transform: translate(70px, 60px) scale(1.12);
+  }
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 740px) {
+  .shell {
+    padding-left: max(16px, env(safe-area-inset-left, 0px), var(--safe-left));
+    padding-right: max(
+      16px,
+      env(safe-area-inset-right, 0px),
+      var(--safe-right)
+    );
+    padding-top: calc(
+      12px + max(env(safe-area-inset-top, 0px), var(--safe-top))
+    );
+  }
+  .workspace {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .topbar {
+    padding: 12px;
+  }
+  .intro {
+    padding: 30px 4px 24px;
+  }
+  .intro h1 {
+    max-width: 350px;
+    line-height: 1.14;
+    font-size: 36px;
+  }
+  .intro p {
+    font-size: 13px;
+    max-width: 310px;
+  }
+  .mode-nav {
+    gap: 3px;
+    padding: 5px;
+    margin-bottom: 18px;
+  }
+  .mode-button {
+    flex-direction: column;
+    gap: 6px;
+    font-size: 10px;
+    padding: 11px 1px;
+  }
+  .mode-button svg {
+    width: 21px;
+    height: 21px;
+  }
+  .panel {
+    padding: 19px;
+    border-radius: 21px;
+    margin-bottom: 14px;
+  }
+  .header-actions {
+    gap: 7px;
+  }
+  .brand {
+    font-size: 17px;
+    gap: 8px;
+  }
+  .brand-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 11px;
+  }
+  .brand-icon svg {
+    width: 24px;
+  }
+  .language button {
+    padding: 6px;
+    min-width: 30px;
+  }
+  .stars-button {
+    padding: 7px 9px;
+    gap: 5px;
+  }
+  .stars-button svg {
+    width: 15px;
+  }
+  input,
+  select,
+  textarea,
+  #output {
+    font-size: 16px;
+  }
+  .field-grid {
+    gap: 12px;
+  }
+  .choice {
+    font-size: 12px;
+  }
+  .result-column {
+    margin-top: 6px;
+  }
+  #empty-result {
+    padding: 20px 5px 28px;
+  }
+  #output {
+    font-size: 16px;
+  }
+  .result-panel {
+    scroll-margin-top: 16px;
+  }
+  .ambient i {
+    width: 450px;
+    height: 450px;
+  }
+  .generate-wrap > .micro {
+    margin-bottom: 12px;
+  }
+}
+@media (max-width: 740px) {
+  .field-grid .select-field {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 350px) {
+  .shell {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .topbar {
+    padding: 10px 8px;
+  }
+  .brand-icon {
+    display: none;
+  }
+  .intro h1 {
+    font-size: 32px;
+  }
+  .stars-button {
+    padding: 6px;
+  }
+  .panel {
+    padding: 16px;
+  }
+  .field-grid {
+    gap: 9px;
+  }
+  .mode-button {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .glass {
+    background: #202438;
+  }
+  .ambient i {
+    animation: none;
+  }
+}
+.simple-glass .glass {
+  background: #202438;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.simple-glass .ambient i {
+  animation: none;
+}
 
-  <!-- Apple Header Bar -->
-  <header class="glass-card p-3.5 mb-3 flex items-center justify-between sticky top-2 z-30 shadow-2xl">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white border border-white/10 shadow-inner">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-        </svg>
-      </div>
-      <div>
-        <h1 class="text-sm font-semibold tracking-tight text-white flex items-center gap-1.5">
-          <span>Director Pro</span>
-          <span class="text-[10px] tracking-wide uppercase px-1.5 py-0.5 rounded-full bg-white/10 text-zinc-300 font-mono">v4.2</span>
-        </h1>
-        <p class="text-[11px] text-zinc-400" id="subHeader">Cinematic Latent Director</p>
-      </div>
-    </div>
-
-    <!-- Controls Right (RU/EN & Stars) -->
-    <div class="flex items-center gap-2">
-      <!-- Lang Switcher -->
-      <div class="flex bg-white/10 p-0.5 rounded-xl border border-white/5 text-xs font-medium">
-        <button id="langRU" onclick="setLang('RU')" class="px-2.5 py-1 rounded-lg bg-white/20 text-white transition-all">RU</button>
-        <button id="langEN" onclick="setLang('EN')" class="px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition-all">EN</button>
-      </div>
-
-      <!-- Telegram Stars Counter -->
-      <div onclick="openStarsModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold cursor-pointer active:scale-95 transition-transform">
-        <svg class="w-3.5 h-3.5 fill-current text-amber-400" viewBox="0 0 20 20">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-        </svg>
-        <span id="starsBalance">50</span>
-        <span class="text-[10px] opacity-75">XTR</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- Engine Segmented Control -->
-  <div class="glass-card p-2.5 mb-3">
-    <div class="text-[11px] font-medium tracking-wide text-zinc-400 uppercase mb-2 px-1 flex justify-between">
-      <span data-i18n="engine_label">Целевой нейродвижок</span>
-      <span class="text-zinc-500 text-[10px]">Optimal Config</span>
-    </div>
-    <div class="grid grid-cols-3 gap-1.5 bg-black/40 p-1 rounded-2xl border border-white/5" id="engineGrid">
-      <button onclick="selectEngine('kling')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all bg-white/15 text-white shadow-sm" data-engine="kling">
-        <div class="font-semibold">Kling 1.5</div>
-        <div class="text-[9px] text-zinc-400">Motion Master</div>
-      </button>
-      <button onclick="selectEngine('runway')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="runway">
-        <div class="font-semibold">Runway Gen-3</div>
-        <div class="text-[9px] text-zinc-400">Camera Control</div>
-      </button>
-      <button onclick="selectEngine('flux')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="flux">
-        <div class="font-semibold">Flux 1.1 Pro</div>
-        <div class="text-[9px] text-zinc-400">Photoreal Detail</div>
-      </button>
-      <button onclick="selectEngine('sora')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="sora">
-        <div class="font-semibold">Sora Engine</div>
-        <div class="text-[9px] text-zinc-400">Complex Physics</div>
-      </button>
-      <button onclick="selectEngine('luma')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="luma">
-        <div class="font-semibold">Luma Ray 2</div>
-        <div class="text-[9px] text-zinc-400">Volumetric World</div>
-      </button>
-      <button onclick="selectEngine('midjourney')" class="engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white" data-engine="midjourney">
-        <div class="font-semibold">Midjourney v6.1</div>
-        <div class="text-[9px] text-zinc-400">Stylized Lighting</div>
-      </button>
-    </div>
-  </div>
-
-  <!-- Prompt Input Area -->
-  <div class="glass-card p-3 mb-3">
-    <div class="flex items-center justify-between mb-2">
-      <span class="text-[11px] font-medium tracking-wide text-zinc-400 uppercase" data-i18n="subject_title">Сюжет и действие</span>
-      <button onclick="randomizePrompt()" class="text-[11px] text-apple-blue flex items-center gap-1 active:opacity-75">
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        <span data-i18n="random_idea">Случайная сцена</span>
-      </button>
-    </div>
-    <textarea id="promptSubject" rows="2" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-apple-blue resize-none transition-colors" placeholder="Опишите сцену своими словами (например: пилот в стеклянном шлеме смотрит на вспышку сверхновой в иллюминаторе)..."></textarea>
-  </div>
-
-  <!-- SECTIONS: Apple Grid of Cards with Icons and Subtitles -->
-
-  <!-- 1. Framing & Angle -->
-  <div class="glass-card p-3 mb-3">
-    <div class="flex items-center gap-2 mb-2.5">
-      <div class="w-5 h-5 rounded-md bg-apple-blue/20 flex items-center justify-center text-apple-blue">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-      </div>
-      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_framing">Ракурс и План</h2>
-    </div>
-    <div class="grid grid-cols-2 gap-2" id="group-framing">
-      <!-- Card 1 -->
-      <div onclick="toggleCard(this, 'framing')" data-value="Low-Angle Heroic 45°" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-white truncate font-medium">Low-Angle Hero</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_low_angle">Взгляд снизу вверх, подчеркивает масштаб и доминирование</div>
-        </div>
-      </div>
-      <!-- Card 2 -->
-      <div onclick="toggleCard(this, 'framing')" data-value="Macro Extreme Close-Up" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Extreme Macro</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_macro">Сверхкрупный план: зрачок глаза, текстура кожи или металла</div>
-        </div>
-      </div>
-      <!-- Card 3 -->
-      <div onclick="toggleCard(this, 'framing')" data-value="Wide Establishing Shot" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Wide Establishing</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_wide">Широкий план всей локации, раскрывает мир и окружение</div>
-        </div>
-      </div>
-      <!-- Card 4 -->
-      <div onclick="toggleCard(this, 'framing')" data-value="Dynamic Dutch Tilt 15°" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l16 16M4 20L20 4"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Dutch Angle Tilt</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_dutch">Наклон горизонта по диагонали, создает напряжение и драйв</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. Optics & Camera Sensor -->
-  <div class="glass-card p-3 mb-3">
-    <div class="flex items-center gap-2 mb-2.5">
-      <div class="w-5 h-5 rounded-md bg-amber-400/20 flex items-center justify-center text-amber-300">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
-      </div>
-      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_optics">Камера и Оптика</h2>
-    </div>
-    <div class="grid grid-cols-2 gap-2" id="group-optics">
-      <!-- Lens 1 -->
-      <div onclick="toggleCard(this, 'optics')" data-value="Cooke Anamorphic 35mm (IMAX 70mm)" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 16h4m10 0h4"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-white truncate font-medium">Cooke Anamorphic</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_anamorphic">Голливудские синие овальные блики и мягкое боке</div>
-        </div>
-      </div>
-      <!-- Lens 2 -->
-      <div onclick="toggleCard(this, 'optics')" data-value="Arri Master Prime 50mm T1.3 (Super 35)" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" stroke-width="2"/><path d="M12 9v6M9 12h6"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Arri Prime 50mm</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_arri">Максимальная резкость деталей и киношная глубина резкости</div>
-        </div>
-      </div>
-      <!-- Lens 3 -->
-      <div onclick="toggleCard(this, 'optics')" data-value="Leica Noctilux 75mm f/1.25" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Leica Noctilux</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_leica">Шелковистое размытие фона и премиальные портретные тона</div>
-        </div>
-      </div>
-      <!-- Lens 4 -->
-      <div onclick="toggleCard(this, 'optics')" data-value="Vintage 16mm Bolex Switar (Heavy Grain)" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/><circle cx="8" cy="8" r="1.5"/><circle cx="16" cy="16" r="1.5"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Vintage 16mm Grain</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_grain">Теплое аналоговое зерно ретро-пленки 70-х годов</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. Camera Movement & Physics -->
-  <div class="glass-card p-3 mb-3">
-    <div class="flex items-center gap-2 mb-2.5">
-      <div class="w-5 h-5 rounded-md bg-emerald-400/20 flex items-center justify-center text-emerald-400">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-      </div>
-      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_movement">Движение Камеры</h2>
-    </div>
-    <div class="grid grid-cols-2 gap-2" id="group-movement">
-      <!-- Move 1 -->
-      <div onclick="toggleCard(this, 'movement')" data-value="Smooth Forward Dolly Push" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-white truncate font-medium">Dolly Push-In</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_dolly">Плавный наезд камеры на главный объект без рывков</div>
-        </div>
-      </div>
-      <!-- Move 2 -->
-      <div onclick="toggleCard(this, 'movement')" data-value="Orbital Steadicam 360°" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Orbital 360°</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_orbital">Вращение вокруг персонажа со стабилизацией стедикама</div>
-        </div>
-      </div>
-      <!-- Move 3 -->
-      <div onclick="toggleCard(this, 'movement')" data-value="FPV Drone High-Speed Dive" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">FPV Dive</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_fpv">Стремительное пикирование дрона сверху сквозь преграды</div>
-        </div>
-      </div>
-      <!-- Move 4 -->
-      <div onclick="toggleCard(this, 'movement')" data-value="Dolly Zoom Vertigo Effect" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Vertigo Effect</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_vertigo">Эффект Хичкока: искажение перспективы заднего фона</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Motion Slider -->
-    <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between gap-3">
-      <div class="text-[11px] text-zinc-400 font-medium">
-        <span data-i18n="motion_slider">Интенсивность динамики:</span>
-        <span id="motionVal" class="text-apple-blue font-bold ml-1">6 / 10</span>
-      </div>
-      <input type="range" id="motionRange" min="1" max="10" value="6" oninput="updateMotion(this.value)" class="w-36 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer">
-    </div>
-  </div>
-
-  <!-- 4. Lighting & Color Grading -->
-  <div class="glass-card p-3 mb-3">
-    <div class="flex items-center gap-2 mb-2.5">
-      <div class="w-5 h-5 rounded-md bg-purple-400/20 flex items-center justify-center text-purple-300">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-      </div>
-      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_lighting">Свет и Цветокоррекция</h2>
-    </div>
-    <div class="grid grid-cols-2 gap-2" id="group-lighting">
-      <!-- Light 1 -->
-      <div onclick="toggleCard(this, 'lighting')" data-value="Chiaroscuro High Contrast (8:1 Ratio)" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18m0-18a9 9 0 000 18m0-18a9 9 0 010 18"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-white truncate font-medium">Chiaroscuro Noir</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_chiaroscuro">Глубокие тени нуара и жесткий контраст света Караваджо</div>
-        </div>
-      </div>
-      <!-- Light 2 -->
-      <div onclick="toggleCard(this, 'lighting')" data-value="Kodak Vision3 500T 5219 Tungsten" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Kodak Vision3 500T</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_kodak">Легендарный теплый вольфрамовый цвет пленки киностудий</div>
-        </div>
-      </div>
-      <!-- Light 3 -->
-      <div onclick="toggleCard(this, 'lighting')" data-value="Cyberpunk Neon Cyan & Magenta Edge" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Cyberpunk Rim Light</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_cyber">Неоновые контурные рефлексы бирюзового и пурпурного</div>
-        </div>
-      </div>
-      <!-- Light 4 -->
-      <div onclick="toggleCard(this, 'lighting')" data-value="Golden Hour Warm Sun Flare 3200K" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path stroke-linecap="round" stroke-width="2" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Golden Hour 3200K</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_golden">Мягкие закатные лучи солнца с золотыми бликами в объективе</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 5. Atmosphere & Volumetrics -->
-  <div class="glass-card p-3 mb-3">
-    <div class="flex items-center gap-2 mb-2.5">
-      <div class="w-5 h-5 rounded-md bg-cyan-400/20 flex items-center justify-center text-cyan-300">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
-      </div>
-      <h2 class="text-xs font-semibold text-zinc-200 uppercase tracking-wider" data-i18n="sec_atmosphere">Атмосфера и Погода</h2>
-    </div>
-    <div class="grid grid-cols-2 gap-2" id="group-weather">
-      <!-- Weather 1 -->
-      <div onclick="toggleCard(this, 'weather')" data-value="Volumetric God Rays Through Fog" class="option-card active p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0l-1.414-1.414M7.05 7.05L5.636 5.636"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-white truncate font-medium">Volumetric Rays</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_godrays">Плотные световые лучи (God Rays), прорезающие густой туман</div>
-        </div>
-      </div>
-      <!-- Weather 2 -->
-      <div onclick="toggleCard(this, 'weather')" data-value="Torrential Rain with Wet Reflections" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Torrential Rain</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_rain">Стена ливня, стекающие капли и зеркальный мокрый асфальт</div>
-        </div>
-      </div>
-      <!-- Weather 3 -->
-      <div onclick="toggleCard(this, 'weather')" data-value="Post-Apocalyptic Ash Smog & Sparks" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Ash & Embers</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_ash">Парящий пепел, раскаленные угли и токсичный смог руин</div>
-        </div>
-      </div>
-      <!-- Weather 4 -->
-      <div onclick="toggleCard(this, 'weather')" data-value="Zero-G Cosmic Dust Particles" class="option-card p-2.5 cursor-pointer flex items-start gap-2.5">
-        <div class="icon-box w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-zinc-300 flex-shrink-0 mt-0.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="6" r="1.5"/><circle cx="5" cy="18" r="1.5"/></svg>
-        </div>
-        <div class="overflow-hidden">
-          <div class="title-text text-xs text-zinc-300 truncate font-medium">Cosmic Micro-Dust</div>
-          <div class="text-[10px] text-zinc-400 leading-tight mt-0.5" data-i18n="desc_cosmic">Сверкающие микрочастицы в невесомости в свете звезд</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Generate Master Button -->
-  <button onclick="generatePrompt()" class="apple-btn w-full py-3.5 mb-4 text-sm flex items-center justify-center gap-2 shadow-xl shadow-blue-500/20 active:scale-[0.98]">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    <span data-i18n="btn_generate">Синтезировать Режиссерский Промпт (-1 XTR)</span>
-  </button>
-
-  <!-- Output Console -->
-  <div class="glass-card p-3.5 mb-3" id="outputConsole">
-    <div class="flex items-center justify-between mb-2 pb-2 border-b border-white/10">
-      <div class="text-xs font-semibold text-white tracking-wide flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span data-i18n="output_title">Master Production Prompt</span>
-      </div>
-      <button onclick="copyOutput()" id="copyBtn" class="text-xs text-apple-blue font-medium flex items-center gap-1 active:opacity-75">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-        <span data-i18n="copy_btn">Копировать</span>
-      </button>
-    </div>
-    <div id="masterPromptText" class="text-xs text-zinc-300 font-mono leading-relaxed bg-black/60 p-3 rounded-xl border border-white/5 break-words select-text">
-      Select options and press Synthesize to generate Hollywood-grade prompt...
-    </div>
-
-    <!-- Negative Prompt Box -->
-    <div class="mt-3 pt-2.5 border-t border-white/5">
-      <div class="text-[10px] uppercase font-semibold text-zinc-500 mb-1" data-i18n="negative_title">Negative Prompt (Устранение дефектов)</div>
-      <div id="negativePromptText" class="text-[11px] text-zinc-400 font-mono bg-black/40 p-2.5 rounded-lg border border-white/5 select-text">
-        blurry, distorted anatomy, morphing artifacts, low bitrate, overexposed, video glitch, cartoon render, watermark
-      </div>
-    </div>
-  </div>
-
-  <!-- Telegram Stars Payment Modal -->
-  <div id="starsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-3">
-    <div class="glass-card w-full max-w-md p-4 bg-zinc-900 border border-white/10 shadow-2xl rounded-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-amber-400/20 flex items-center justify-center text-amber-400">
-            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+</style>
+    <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="shell">
+      <header class="topbar glass">
+        <a class="brand" href="#"
+          ><span class="brand-icon" data-icon="aperture"></span
+          ><span>Director<span class="brand-sub">STUDIO</span></span></a
+        >
+        <div class="header-actions">
+          <div class="language" aria-label="Language">
+            <button type="button" data-lang="ru">RU</button
+            ><button type="button" data-lang="en">EN</button>
           </div>
-          <div>
-            <h3 class="text-sm font-semibold text-white" data-i18n="stars_modal_title">Telegram Stars (XTR)</h3>
-            <p class="text-[11px] text-zinc-400" data-i18n="stars_modal_sub">Официальная валюта встроенных покупок</p>
-          </div>
+          <button class="stars-button" id="stars-open">
+            <span data-icon="star"></span
+            ><span>Stars <small data-i18n="demo">Демо</small></span>
+          </button>
         </div>
-        <button onclick="closeStarsModal()" class="text-zinc-400 hover:text-white p-1">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </header>
+      <main>
+        <section class="intro">
+          <div class="eyebrow">
+            <span class="status-dot"></span
+            ><span data-i18n="eyebrow">ВАША ТВОРЧЕСКАЯ СТУДИЯ</span>
+          </div>
+          <h1 data-i18n="headline">От идеи — к точному промпту.</h1>
+          <p data-i18n="intro">
+            Задайте направление. Добавьте детали. Создайте что-то своё.
+          </p>
+        </section>
+        <nav id="modes" class="mode-nav glass" aria-label="Режимы"></nav>
+        <div class="workspace">
+          <form id="prompt-form" novalidate>
+            <section class="glass panel mode-panel" id="brief-panel">
+              <div class="section-heading">
+                <div>
+                  <div class="eyebrow" data-i18n="step1">01 / ИДЕЯ</div>
+                  <h2 id="mode-title"></h2>
+                </div>
+                <button type="button" class="quiet-button" id="random">
+                  <span data-icon="shuffle"></span
+                  ><span data-i18n="example">Пример</span>
+                </button>
+              </div>
+              <p class="hint" id="mode-hint"></p>
+              <div id="brief-fields"></div>
+            </section>
+            <section class="glass panel mode-panel">
+              <div class="section-heading">
+                <div>
+                  <div class="eyebrow" data-i18n="step2">02 / ДЕТАЛИ</div>
+                  <h2 data-i18n="settings">Настройте под себя</h2>
+                </div>
+                <span class="section-symbol" data-icon="sliders"></span>
+              </div>
+              <div id="settings-fields" class="field-grid"></div>
+            </section>
+            <section class="glass panel target-panel">
+              <label for="target" data-i18n="target"
+                >Нейросеть для промпта</label
+              ><select id="target"></select>
+              <p class="hint" data-i18n="targetHint">
+                Готовый текст для переноса в выбранный сервис. Доступные
+                параметры зависят от модели.
+              </p>
+            </section>
+            <div class="generate-wrap">
+              <button class="primary" id="generate" type="submit">
+                <span data-icon="sparkles"></span
+                ><span data-i18n="generate">Создать промпт</span
+                ><span class="arrow">↗</span>
+              </button>
+              <p class="micro" data-i18n="localHint">
+                Бесплатно · Без отправки данных в нейросеть
+              </p>
+            </div>
+          </form>
+          <aside class="result-column">
+            <section
+              class="glass panel result-panel"
+              id="result-panel"
+              aria-labelledby="result-heading"
+            >
+              <div class="section-heading">
+                <div>
+                  <div class="eyebrow" data-i18n="step3">03 / РЕЗУЛЬТАТ</div>
+                  <h2 id="result-heading" data-i18n="result">
+                    Ваш следующий шедевр
+                  </h2>
+                </div>
+                <span class="section-symbol" data-icon="document"></span>
+              </div>
+              <div id="empty-result">
+                <div class="empty-art" data-icon="sparkles"></div>
+                <h3 data-i18n="emptyTitle">Всё начинается с идеи</h3>
+                <p data-i18n="emptyHint">
+                  Заполните описание или попробуйте пример. Здесь появится
+                  готовый промпт.
+                </p>
+                <div class="empty-lines" aria-hidden="true">
+                  <i></i><i></i><i></i>
+                </div>
+              </div>
+              <div id="result-content" hidden>
+                <div class="result-meta">
+                  <span id="result-badge" class="badge"></span
+                  ><span id="char-count" class="micro"></span>
+                </div>
+                <label class="sr-only" for="output" data-i18n="resultText"
+                  >Текст промпта</label
+                ><textarea
+                  id="output"
+                  rows="14"
+                  readonly
+                  spellcheck="false"
+                  maxlength="60000"
+                ></textarea>
+                <div class="result-actions">
+                  <button type="button" id="edit" class="secondary">
+                    <span data-icon="edit"></span
+                    ><span data-i18n="edit">Редактировать</span></button
+                  ><button type="button" id="copy" class="secondary accent">
+                    <span data-icon="copy"></span
+                    ><span data-i18n="copy">Копировать</span>
+                  </button>
+                </div>
+                <p class="micro" data-i18n="editHint">
+                  Изменения автоматически сохраняются в истории.
+                </p>
+              </div>
+            </section>
+            <section class="glass panel history-panel">
+              <div class="section-heading">
+                <h2>
+                  <span data-icon="history"></span
+                  ><span data-i18n="history">История</span
+                  ><span class="count" id="history-count">0</span>
+                </h2>
+                <button
+                  type="button"
+                  id="clear-history"
+                  class="text-button"
+                  data-i18n="clear"
+                >
+                  Очистить
+                </button>
+              </div>
+              <p class="micro" data-i18n="historyHint">
+                Последние 30 результатов · Только на этом устройстве
+              </p>
+              <div id="history-list"></div>
+            </section>
+            <p class="connection-note">
+              <span data-icon="shield"></span
+              ><span data-i18n="connectionHint"
+                >Это конструктор промптов. Диалог с нейросетью и генерация медиа
+                не подключены.</span
+              >
+            </p>
+          </aside>
+        </div>
+      </main>
+      <footer>
+        <span>DIRECTOR STUDIO</span
+        ><span data-i18n="footer">Место для ваших идей.</span>
+      </footer>
+    </div>
+    <dialog id="stars-dialog" class="glass">
+      <div class="section-heading">
+        <h2><span data-icon="star"></span> Telegram Stars</h2>
+        <button class="icon-button" id="stars-close" data-label="close">
+          <span data-icon="close"></span>
         </button>
       </div>
-
-      <p class="text-xs text-zinc-300 mb-3" data-i18n="stars_modal_desc">
-        Пополняйте баланс генераций без ввода банковских карт. 1 звезда = 1 кинематографический мастер-промпт с глубокой оптимизацией.
+      <span class="badge" data-i18n="demoOnly">Демонстрационный интерфейс</span>
+      <p data-i18n="starsHint">
+        Реальная оплата не подключена. Пакеты ниже — только макет: Stars не
+        списываются и не начисляются. Генерация промптов бесплатна.
       </p>
-
-      <div class="grid grid-cols-2 gap-2 mb-4">
-        <button onclick="topUpStars(25)" class="option-card p-3 text-center border-amber-500/20 active:scale-95">
-          <div class="text-base font-bold text-amber-300">⭐ 25 XTR</div>
-          <div class="text-[10px] text-zinc-400">Стартовый набор</div>
-        </button>
-        <button onclick="topUpStars(100)" class="option-card p-3 text-center border-amber-500/30 bg-amber-500/10 active:scale-95">
-          <div class="text-base font-bold text-amber-300">⭐ 100 XTR</div>
-          <div class="text-[10px] text-zinc-300 font-medium">Pro Director (Выгодно)</div>
+      <div class="packages">
+        <button disabled>
+          25 XTR<span data-i18n="unavailable">Недоступно</span></button
+        ><button disabled>
+          100 XTR<span data-i18n="unavailable">Недоступно</span>
         </button>
       </div>
-
-      <button onclick="closeStarsModal()" class="w-full py-2.5 rounded-xl bg-white/10 text-xs font-semibold text-zinc-300 hover:bg-white/15" data-i18n="close_btn">
-        Закрыть
-      </button>
-    </div>
-  </div>
-
+      <p class="micro" data-i18n="starsBackend">
+        Покупки станут доступны после подключения платёжного сервера бота.
+      </p>
+    </dialog>
+    <dialog id="confirm-dialog" class="glass">
+      <h2 data-i18n="clearQuestion">Удалить всю историю?</h2>
+      <p data-i18n="clearHint">
+        Сохранённые результаты будут удалены с этого устройства. Черновики
+        останутся.
+      </p>
+      <div class="result-actions">
+        <button id="cancel-clear" class="secondary" data-i18n="cancel">
+          Отмена</button
+        ><button id="confirm-clear" class="secondary danger" data-i18n="delete">
+          Удалить
+        </button>
+      </div>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <noscript
+      >Для Director Studio нужен JavaScript. Director Studio requires
+      JavaScript.</noscript
+    >
   <script>
-    // State
-    let currentLang = 'RU';
-    let currentEngine = 'kling';
-    let balance = 50;
-
-    const selections = {
-      framing: 'Low-Angle Heroic 45°',
-      optics: 'Cooke Anamorphic 35mm (IMAX 70mm)',
-      movement: 'Smooth Forward Dolly Push',
-      lighting: 'Chiaroscuro High Contrast (8:1 Ratio)',
-      weather: 'Volumetric God Rays Through Fog',
-      motion: 6
+"use strict";
+(() => {
+  // All UI and template strings share one RU/EN translation registry.
+  const dictionary = {};
+  const pair = (ru, en) => ({ ru, en });
+  const add = (key, ru, en) => {
+    dictionary[key] = pair(ru, en);
+    return key;
+  };
+  const ui = {
+    demo: ["Демо", "Demo"],
+    eyebrow: ["ВАША ТВОРЧЕСКАЯ СТУДИЯ", "YOUR CREATIVE WORKSPACE"],
+    headline: ["От идеи — к точному промпту.", "Big ideas. Better prompts."],
+    intro: [
+      "Задайте направление. Добавьте детали. Создайте что-то своё.",
+      "Set a direction. Add the details. Make it yours.",
+    ],
+    step1: ["01 / ИДЕЯ", "01 / THE IDEA"],
+    step2: ["02 / ДЕТАЛИ", "02 / THE DETAILS"],
+    step3: ["03 / РЕЗУЛЬТАТ", "03 / THE RESULT"],
+    settings: ["Настройте под себя", "Make it your own"],
+    example: ["Пример", "Example"],
+    target: ["Нейросеть для промпта", "Target AI"],
+    targetHint: [
+      "Готовый текст для переноса в выбранный сервис. Доступные параметры зависят от модели.",
+      "Ready-to-copy text for your chosen service. Available settings depend on the model.",
+    ],
+    generate: ["Создать промпт", "Create prompt"],
+    localHint: [
+      "Бесплатно · Без отправки данных в нейросеть",
+      "Free · No data sent to AI",
+    ],
+    result: ["Ваш следующий шедевр", "Your next great creation"],
+    emptyTitle: ["Всё начинается с идеи", "It starts with an idea"],
+    emptyHint: [
+      "Заполните описание или попробуйте пример. Здесь появится готовый промпт.",
+      "Write a brief or try an example. Your ready-to-use prompt will appear here.",
+    ],
+    resultText: ["Текст промпта", "Prompt text"],
+    edit: ["Редактировать", "Edit"],
+    done: ["Готово", "Done"],
+    copy: ["Копировать", "Copy"],
+    editHint: [
+      "Изменения автоматически сохраняются в истории.",
+      "Edits are automatically saved to history.",
+    ],
+    history: ["История", "History"],
+    clear: ["Очистить", "Clear"],
+    historyHint: [
+      "Последние 30 результатов · Только на этом устройстве",
+      "Last 30 results · On this device only",
+    ],
+    connectionHint: [
+      "Это конструктор промптов. Диалог с нейросетью и генерация медиа не подключены.",
+      "This is a prompt builder. AI chat and media generation are not connected.",
+    ],
+    footer: ["Место для ваших идей.", "A space for your ideas."],
+    demoOnly: ["Демонстрационный интерфейс", "Demo interface"],
+    starsHint: [
+      "Реальная оплата не подключена. Пакеты ниже — только макет: Stars не списываются и не начисляются. Генерация промптов бесплатна.",
+      "Real payments are not connected. These packages are a preview: no Stars are charged or credited. Prompt creation is free.",
+    ],
+    unavailable: ["Недоступно", "Unavailable"],
+    starsBackend: [
+      "Покупки станут доступны после подключения платёжного сервера бота.",
+      "Purchases require the bot’s payment server to be connected.",
+    ],
+    clearQuestion: ["Удалить всю историю?", "Delete all history?"],
+    clearHint: [
+      "Сохранённые результаты будут удалены с этого устройства. Черновики останутся.",
+      "Saved results will be removed from this device. Input drafts will remain.",
+    ],
+    cancel: ["Отмена", "Cancel"],
+    delete: ["Удалить", "Delete"],
+    close: ["Закрыть", "Close"],
+    copied: ["Промпт скопирован", "Prompt copied"],
+    copyFailed: [
+      "Текст выделен. Скопируйте его вручную.",
+      "Text selected. Please copy it manually.",
+    ],
+    emptyHistory: [
+      "Ваши промпты появятся здесь.",
+      "Your prompts will appear here.",
+    ],
+    required: [
+      "Добавьте описание задачи или выберите пример.",
+      "Add a brief or choose an example.",
+    ],
+    storageError: [
+      "Хранилище недоступно или заполнено. Данные сохраняются только до закрытия страницы.",
+      "Storage is unavailable or full. Data will last only until this page closes.",
+    ],
+    deleted: ["Результат удалён", "Result deleted"],
+    cleared: ["История очищена", "History cleared"],
+    created: ["Промпт готов", "Prompt ready"],
+    chars: ["знаков", "characters"],
+    modes: ["Режимы", "Modes"],
+    negative: [
+      "Нежелательные элементы (negative prompt)",
+      "Elements to avoid (negative prompt)",
+    ],
+    stage1: ["1. Начало", "1. Opening"],
+    stage2: ["2. Развитие", "2. Development"],
+    stage3: ["3. Завершение", "3. Ending"],
+    purpose: ["Задача", "Task"],
+    model: ["Целевой сервис", "Target service"],
+    responseLanguage: ["Язык ответа: русский.", "Response language: English."],
+    noInvent: [
+      "Не выдумывай факты. Отделяй предположения от проверенной информации. Если важного контекста не хватает, задай уточняющие вопросы.",
+      "Do not invent facts. Separate assumptions from verified information. Ask clarifying questions if essential context is missing.",
+    ],
+    naturalSettings: [
+      "Параметры ниже описывают желаемый результат обычным текстом, а не команды или гарантированные возможности сервиса.",
+      "The settings below describe the desired result in plain language; they are not commands or guaranteed service capabilities.",
+    ],
+    optional: ["Необязательно", "Optional"],
+    none: ["Без дополнительных ограничений", "No additional constraints"],
+    auto: ["По задаче", "As appropriate"],
+    modelNeutral: ["Любая нейросеть", "Any AI"],
+    video: ["Видео", "Video"],
+    games: ["Игры", "Games"],
+    chat: ["Общение", "Chat"],
+    universal: ["Универсальный", "Universal"],
+    videoTitle: ["Расскажите вашу сцену", "Set the scene"],
+    gamesTitle: ["Придумайте игровой опыт", "Build a game idea"],
+    chatTitle: ["Начните с интересной темы", "Start a conversation"],
+    universalTitle: ["Сформулируйте задачу", "Define the task"],
+    videoHint: [
+      "От первого кадра до финального акцента. Соберите визуальное направление будущего видео.",
+      "From the opening frame to the final beat. Shape the visual direction of your video.",
+    ],
+    gamesHint: [
+      "От механики до задания разработчику — выберите, что хотите создать.",
+      "From a mechanic to a development brief — choose what you want to create.",
+    ],
+    chatHint: [
+      "Составьте промпт для будущего диалога. Сам диалог проходит в выбранной нейросети.",
+      "Prepare a prompt for a future conversation. The conversation happens in your chosen AI service.",
+    ],
+    universalHint: [
+      "Тексты, обучение, код и любые другие задачи — с ясным контекстом и форматом.",
+      "Writing, learning, code and more — with clear context and a useful format.",
+    ],
+  };
+  Object.entries(ui).forEach(([key, values]) => add(key, ...values));
+  const options = (name, rows) =>
+    rows.map(([id, ru, en]) => ({
+      id,
+      label: add(name + "." + id, ru, en || ru),
+    }));
+  const field = (id, ru, en, type = "text", extra = {}) => ({
+    id,
+    label: add("field." + id, ru, en),
+    type,
+    ...extra,
+  });
+  const videoFields = [
+    field("scene", "Описание сцены", "Scene description", "textarea", {
+      required: true,
+    }),
+    field("action", "Действие", "Action", "textarea"),
+    field("framing", "Ракурс и план", "Framing & angle", "choices", {
+      options: options("framing", [
+        ["low", "Героический снизу", "Low-angle hero"],
+        ["macro", "Сверхкрупный план", "Extreme macro"],
+        ["wide", "Общий план", "Wide establishing"],
+        ["dutch", "Наклон горизонта 15°", "Dutch angle 15°"],
+      ]),
+    }),
+    field("optics", "Камера и оптика", "Camera & optics", "select", {
+      options: options("optics", [
+        ["cooke", "Cooke · анаморфная 35 мм", "Cooke · anamorphic 35 mm"],
+        ["arri", "Arri · 50 мм T1.3", "Arri · 50 mm T1.3"],
+        ["leica", "Leica · 75 мм f/1.25", "Leica · 75 mm f/1.25"],
+        ["bolex", "Bolex · плёнка 16 мм", "Bolex · 16 mm film"],
+      ]),
+    }),
+    field("movement", "Движение камеры", "Camera movement", "select", {
+      options: options("movement", [
+        ["dolly", "Плавный наезд", "Smooth dolly push"],
+        ["orbit", "Облёт 360°", "360° orbit"],
+        ["fpv", "Пикирование FPV", "FPV drone dive"],
+        ["vertigo", "Долли-зум", "Dolly zoom"],
+      ]),
+    }),
+    field("lighting", "Свет и цвет", "Lighting & color", "select", {
+      options: options("lighting", [
+        ["noir", "Контрастный свет · нуар", "High-contrast chiaroscuro"],
+        [
+          "kodak",
+          "Kodak Vision3 · тёплый свет",
+          "Kodak Vision3 · warm tungsten",
+        ],
+        ["neon", "Неон · циан и маджента", "Neon · cyan & magenta"],
+        ["golden", "Золотой час", "Golden hour"],
+      ]),
+    }),
+    field("atmosphere", "Атмосфера", "Atmosphere", "select", {
+      options: options("atmosphere", [
+        ["fog", "Лучи света в тумане", "Light shafts through fog"],
+        ["rain", "Ливень и мокрые отражения", "Heavy rain & wet reflections"],
+        ["ash", "Пепел, смог и искры", "Ash, smog & sparks"],
+        ["cosmic", "Космическая пыль", "Floating cosmic dust"],
+      ]),
+    }),
+    field("duration", "Длительность", "Duration", "select", {
+      options: options("duration", [
+        ["5", "5 секунд", "5 seconds"],
+        ["10", "10 секунд", "10 seconds"],
+        ["15", "15 секунд", "15 seconds"],
+        ["30", "30 секунд", "30 seconds"],
+      ]),
+    }),
+    field("ratio", "Формат кадра", "Aspect ratio", "select", {
+      options: options("ratio", [
+        ["16:9", "16:9 · горизонтальный", "16:9 · landscape"],
+        ["9:16", "9:16 · вертикальный", "9:16 · portrait"],
+        ["1:1", "1:1 · квадрат", "1:1 · square"],
+        ["4:3", "4:3 · классический", "4:3 · classic"],
+      ]),
+    }),
+    field("motion", "Интенсивность движения", "Motion intensity", "range"),
+    field("negative", "Что исключить", "What to avoid", "textarea"),
+  ];
+  const gameFields = [
+    field("brief", "Идея и контекст", "Idea & context", "textarea", {
+      required: true,
+    }),
+    field("kind", "Что создаём", "What to create", "select", {
+      options: options("kind", [
+        ["idea", "Идея игры", "Game concept"],
+        ["mechanics", "Механика", "Mechanics"],
+        ["characters", "Персонажи", "Characters"],
+        ["world", "Игровой мир", "Game world"],
+        ["quest", "Квест", "Quest"],
+        ["dialogue", "Диалог", "Dialogue"],
+        ["development", "Задание на разработку", "Development brief"],
+      ]),
+    }),
+    field("genre", "Жанр", "Genre", "select", {
+      options: options("genre", [
+        ["adventure", "Приключение", "Adventure"],
+        ["rpg", "Ролевая игра", "RPG"],
+        ["puzzle", "Головоломка", "Puzzle"],
+        ["strategy", "Стратегия", "Strategy"],
+        ["simulation", "Симулятор", "Simulation"],
+        ["action", "Экшен", "Action"],
+      ]),
+    }),
+    field("platform", "Платформа", "Platform", "select", {
+      options: options("platform", [
+        ["mobile", "Мобильная", "Mobile"],
+        ["pc", "ПК", "PC"],
+        ["web", "Браузер", "Web"],
+        ["console", "Консоль", "Console"],
+      ]),
+    }),
+    field("style", "Визуальный стиль", "Visual style", "select", {
+      options: options("style", [
+        ["stylized", "Стилизация", "Stylized"],
+        ["pixel", "Пиксель-арт", "Pixel art"],
+        ["real", "Реализм", "Realistic"],
+        ["lowpoly", "Низкополигональный", "Low poly"],
+      ]),
+    }),
+    field("engine", "Движок", "Engine", "select", {
+      options: options("engine", [
+        ["godot", "Godot"],
+        ["unity", "Unity"],
+        ["unreal", "Unreal Engine"],
+        ["web", "HTML / JavaScript"],
+        ["any", "Предложить подходящий", "Suggest a suitable engine"],
+      ]),
+    }),
+    field("scope", "Масштаб проекта", "Project scope", "select", {
+      options: options("scope", [
+        ["prototype", "Прототип · 1 разработчик", "Prototype · solo developer"],
+        ["jam", "Геймджем · 48 часов", "Game jam · 48 hours"],
+        ["indie", "Инди · небольшая команда", "Indie · small team"],
+        ["large", "Большой проект", "Large project"],
+      ]),
+    }),
+  ];
+  const chatFields = [
+    field("topic", "Тема и контекст", "Topic & context", "textarea", {
+      required: true,
+    }),
+    field("role", "Роль собеседника", "Conversation partner’s role", "text"),
+    field("kindChat", "Тип общения", "Conversation type", "select", {
+      options: options("kindChat", [
+        ["discussion", "Обсуждение", "Discussion"],
+        ["brainstorm", "Мозговой штурм", "Brainstorming"],
+        ["explain", "Объяснение", "Explanation"],
+        ["roleplay", "Ролевой диалог", "Role-play"],
+      ]),
+    }),
+    field("tone", "Тон", "Tone", "select", {
+      options: options("tone", [
+        ["friendly", "Дружелюбный", "Friendly"],
+        ["professional", "Деловой", "Professional"],
+        ["socratic", "Сократический", "Socratic"],
+        ["playful", "Игривый", "Playful"],
+      ]),
+    }),
+    field("detail", "Подробность", "Detail level", "select", {
+      options: options("detail", [
+        ["balanced", "Средняя", "Balanced"],
+        ["brief", "Кратко", "Brief"],
+        ["deep", "Подробно, с примерами", "Detailed, with examples"],
+      ]),
+    }),
+  ];
+  const universalFields = [
+    field("goal", "Цель", "Goal", "textarea", { required: true }),
+    field("context", "Контекст", "Context", "textarea"),
+    field("constraints", "Ограничения", "Constraints", "textarea"),
+    field("taskType", "Тип задачи", "Task type", "select", {
+      options: options("taskType", [
+        ["writing", "Текст", "Writing"],
+        ["learning", "Обучение", "Learning"],
+        ["coding", "Программирование", "Programming"],
+        ["other", "Другая задача", "Other task"],
+      ]),
+    }),
+    field("format", "Формат результата", "Output format", "select", {
+      options: options("format", [
+        ["steps", "Пошаговый план", "Step-by-step plan"],
+        ["text", "Связный текст", "Prose"],
+        ["list", "Список", "List"],
+        ["table", "Таблица", "Table"],
+        ["code", "Код с пояснением", "Code with explanation"],
+        ["json", "JSON", "JSON"],
+      ]),
+    }),
+  ];
+  const modes = {
+    video: { icon: "video", fields: videoFields },
+    games: { icon: "game", fields: gameFields },
+    chat: { icon: "chat", fields: chatFields },
+    universal: { icon: "sparkles", fields: universalFields },
+  };
+  const examples = {
+    video: [
+      pair(
+        "Хранитель маяка на скале наблюдает северное сияние над спокойным морем.",
+        "A lighthouse keeper on a cliff watches the aurora above a calm sea.",
+      ),
+      pair(
+        "Робот-садовник находит первый цветок среди заброшенных городских теплиц.",
+        "A gardening robot discovers the first flower in abandoned urban greenhouses.",
+      ),
+      pair(
+        "Пилот в стеклянном шлеме смотрит на вспышку сверхновой через иллюминатор.",
+        "A pilot in a glass helmet watches a supernova through a spacecraft window.",
+      ),
+    ],
+    games: [
+      pair(
+        "Мир летающих островов, где курьер доставляет воспоминания. Игровая сессия — 10 минут.",
+        "A world of floating islands where a courier delivers memories. Each session lasts 10 minutes.",
+      ),
+      pair(
+        "Уютная мастерская роботов. Игрок ремонтирует помощников и узнаёт истории их владельцев.",
+        "A cozy robot workshop. The player repairs companions and learns their owners’ stories.",
+      ),
+      pair(
+        "Подводная библиотека: знания меняют течения, а книги нужно спасать от прилива.",
+        "An underwater library where knowledge changes currents and books must be saved from the tide.",
+      ),
+    ],
+    chat: [
+      pair(
+        "Как найти баланс между творческой работой и повседневной рутиной?",
+        "How can I balance creative work with everyday routines?",
+      ),
+      pair(
+        "Почему небо меняет цвет на закате? Я начинающий и хочу понять физику явления.",
+        "Why does the sky change color at sunset? I am a beginner and want to understand the physics.",
+      ),
+      pair(
+        "Каким может быть общественный транспорт в городе через 50 лет?",
+        "What might public transportation look like in a city 50 years from now?",
+      ),
+    ],
+    universal: [
+      pair(
+        "Помоги составить план изучения JavaScript на четыре недели.",
+        "Help me create a four-week JavaScript learning plan.",
+      ),
+      pair(
+        "Напиши короткое приветствие для сайта независимой книжной лавки.",
+        "Write a short welcome message for an independent bookshop website.",
+      ),
+      pair(
+        "Разработай функцию, которая группирует список задач по приоритету.",
+        "Develop a function that groups a list of tasks by priority.",
+      ),
+    ],
+  };
+  Object.entries(examples).forEach(([mode, list]) =>
+    list.forEach((value, i) => (dictionary[mode + ".example." + i] = value)),
+  );
+  add(
+    "rolePlaceholder",
+    "Например: терпеливый наставник, редактор, персонаж",
+    "For example: patient mentor, editor, fictional character",
+  );
+  const targetOptions = {
+    video: ["Kling", "Runway", "Sora", "Luma", "Flux", "Midjourney"],
+    other: ["ChatGPT", "Claude", "Gemini"],
+  };
+  const icons = {
+    aperture:
+      '<circle cx="12" cy="12" r="9"/><path d="m9 3 6 10M19 6H8m13 8-7-10m1 17-6-10M5 18h11M3 10l7 10"/>',
+    video:
+      '<rect x="3" y="6" width="12" height="12" rx="3"/><path d="m15 10 6-3v10l-6-3"/>',
+    game: '<path d="M7 7h10c3 0 5 10 3 12-2 1-4-3-5-3H9c-1 0-3 4-5 3C2 17 4 7 7 7Z"/><path d="M8 10v5m-2.5-2.5h5M16 11h.01M18 14h.01"/>',
+    chat: '<path d="M21 11a8 8 0 0 1-8 8H7l-4 3V7a4 4 0 0 1 4-4h6a8 8 0 0 1 8 8Z"/><path d="M7 9h9M7 13h6"/>',
+    sparkles:
+      '<path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM20 2v4m-2-2h4M4 18v4m-2-2h4"/>',
+    sliders:
+      '<path d="M4 6h7m4 0h5M4 12h3m4 0h9M4 18h11m4 0h1"/><circle cx="13" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+    star: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/>',
+    document:
+      '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+    copy: '<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+    edit: '<path d="m15 4 5 5M4 20l5-1L21 7l-5-5L4 14ZM13 20h8"/>',
+    history: '<path d="M3 11a9 9 0 1 1 2 7M3 4v7h7M12 7v6l4 2"/>',
+    shield: '<path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6ZM8 12l3 3 5-6"/>',
+    shuffle:
+      '<path d="M3 6h3c4 0 8 12 12 12h3m-4-4 4 4-4 4M3 18h3c4 0 8-12 12-12h3m-4-4 4 4-4 4"/>',
+    close: '<path d="m6 6 12 12M6 18 18 6"/>',
+    trash: '<path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/>',
+  };
+  const svg = (name) =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.sparkles}</svg>`;
+  const $ = (id) => document.getElementById(id);
+  const KEY = "director-studio.v5";
+  const blankDraft = (mode) => ({
+    values: Object.fromEntries(
+      modes[mode].fields.map((f) => [
+        f.id,
+        f.options?.[0].id || (f.type === "range" ? "6" : ""),
+      ]),
+    ),
+    target: mode === "video" ? "Kling" : "ChatGPT",
+    result: null,
+  });
+  const state = {
+    version: 5,
+    lang: "ru",
+    mode: "video",
+    drafts: Object.fromEntries(
+      Object.keys(modes).map((m) => [m, blankDraft(m)]),
+    ),
+    history: [],
+  };
+  let storageFailed = false,
+    toastTimer,
+    editing = false;
+  const t = (key) => dictionary[key]?.[state.lang] || key;
+  const resultValid = (r) =>
+    r &&
+    typeof r.text === "string" &&
+    r.text.length <= 60000 &&
+    typeof r.id === "string" &&
+    r.id.length < 100 &&
+    ["ru", "en"].includes(r.lang) &&
+    typeof r.target === "string" &&
+    r.target.length < 100;
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY));
+    if (saved?.version === 5) {
+      if (["ru", "en"].includes(saved.lang)) state.lang = saved.lang;
+      if (Object.hasOwn(modes, saved.mode)) state.mode = saved.mode;
+      for (const mode of Object.keys(modes)) {
+        const data = saved.drafts?.[mode];
+        if (!data) continue;
+        for (const f of modes[mode].fields) {
+          const v = data.values?.[f.id];
+          if (
+            typeof v === "string" &&
+            v.length <= 6000 &&
+            (!f.options || f.options.some((o) => o.id === v)) &&
+            (f.type !== "range" || /^(10|[1-9])$/.test(v))
+          )
+            state.drafts[mode].values[f.id] = v;
+        }
+        if (
+          [
+            ...(mode === "video" ? targetOptions.video : targetOptions.other),
+            "Any AI",
+          ].includes(data.target)
+        )
+          state.drafts[mode].target = data.target;
+        if (resultValid(data.result))
+          state.drafts[mode].result = {
+            id: data.result.id,
+            text: data.result.text,
+            lang: data.result.lang,
+            target: data.result.target,
+          };
+      }
+      if (Array.isArray(saved.history))
+        state.history = saved.history
+          .filter(
+            (r) =>
+              resultValid(r) &&
+              Object.hasOwn(modes, r.mode) &&
+              Number.isFinite(r.date),
+          )
+          .slice(0, 30)
+          .map((r) => ({
+            id: r.id,
+            text: r.text,
+            lang: r.lang,
+            target: r.target,
+            mode: r.mode,
+            date: r.date,
+          }));
+    }
+  } catch {
+    storageFailed = true;
+  }
+  function persist() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(state));
+      storageFailed = false;
+    } catch {
+      if (!storageFailed) toast(t("storageError"));
+      storageFailed = true;
+    }
+  }
+  function toast(message) {
+    $("toast").textContent = message;
+    $("toast").classList.add("visible");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => $("toast").classList.remove("visible"), 4000);
+  }
+  let tg;
+  function haptic(kind = "selection") {
+    try {
+      if (!tg?.isVersionAtLeast?.("6.1")) return;
+      if (kind === "selection") tg.HapticFeedback?.selectionChanged();
+      else tg.HapticFeedback?.notificationOccurred("success");
+    } catch {
+      /* Optional bridge must never block the app. */
+    }
+  }
+  const reduceMotion = () =>
+    matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function initTelegram() {
+    if (!tg) return;
+    try {
+      tg.ready();
+      tg.expand();
+    } catch {}
+    const viewport = () => {
+      if (tg.viewportStableHeight > 0)
+        document.documentElement.style.setProperty(
+          "--tg-viewport-stable-height",
+          tg.viewportStableHeight + "px",
+        );
+      for (const side of ["top", "bottom", "left", "right"]) {
+        const inset =
+          (tg.safeAreaInset?.[side] || 0) +
+          (tg.contentSafeAreaInset?.[side] || 0);
+        document.documentElement.style.setProperty(
+          "--safe-" + side,
+          inset + "px",
+        );
+      }
     };
-
-    const dictionary = {
-      RU: {
-        subHeader: "Режиссерский кинематографический пульт",
-        engine_label: "Целевой нейродвижок",
-        subject_title: "Сюжет и действие",
-        random_idea: "Случайная сцена",
-        sec_framing: "Ракурс и План",
-        sec_optics: "Камера и Оптика",
-        sec_movement: "Движение Камеры",
-        sec_lighting: "Свет и Цветокоррекция",
-        sec_atmosphere: "Атмосфера и Погода",
-        motion_slider: "Интенсивность динамики:",
-        btn_generate: "Синтезировать Режиссерский Промпт (-1 XTR)",
-        output_title: "Мастер-промпт (Production Ready)",
-        copy_btn: "Копировать",
-        copied: "Скопировано в буфер!",
-        negative_title: "Negative Prompt (Устранение дефектов)",
-        stars_modal_title: "Telegram Stars (XTR)",
-        stars_modal_sub: "Официальная валюта встроенных покупок",
-        stars_modal_desc: "Пополняйте баланс генераций без ввода банковских карт. 1 звезда = 1 кинематографический мастер-промпт с глубокой оптимизацией.",
-        close_btn: "Закрыть",
-        desc_low_angle: "Взгляд снизу вверх, подчеркивает масштаб и доминирование",
-        desc_macro: "Сверхкрупный план: зрачок глаза, текстура кожи или металла",
-        desc_wide: "Широкий план всей локации, раскрывает мир и окружение",
-        desc_dutch: "Наклон горизонта по диагонали, создает напряжение и драйв",
-        desc_anamorphic: "Голливудские синие овальные блики и мягкое боке",
-        desc_arri: "Максимальная резкость деталей и киношная глубина резкости",
-        desc_leica: "Шелковистое размытие фона и премиальные портретные тона",
-        desc_grain: "Теплое аналоговое зерно ретро-пленки 70-х годов",
-        desc_dolly: "Плавный наезд камеры на главный объект без рывков",
-        desc_orbital: "Вращение вокруг персонажа со стабилизацией стедикама",
-        desc_fpv: "Стремительное пикирование дрона сверху сквозь преграды",
-        desc_vertigo: "Эффект Хичкока: искажение перспективы заднего фона",
-        desc_chiaroscuro: "Глубокие тени нуара и жесткий контраст света Караваджо",
-        desc_kodak: "Легендарный теплый вольфрамовый цвет пленки киностудий",
-        desc_cyber: "Неоновые контурные рефлексы бирюзового и пурпурного",
-        desc_golden: "Мягкие закатные лучи солнца с золотыми бликами в объективе",
-        desc_godrays: "Плотные световые лучи (God Rays), прорезающие густой туман",
-        desc_rain: "Стена ливня, стекающие капли и зеркальный мокрый асфальт",
-        desc_ash: "Парящий пепел, раскаленные угли и токсичный смог руин",
-        desc_cosmic: "Сверкающие микрочастицы в невесомости в свете звезд"
-      },
-      EN: {
-        subHeader: "Cinematic Latent Director Console",
-        engine_label: "Target Synthesis Engine",
-        subject_title: "Core Subject & Action",
-        random_idea: "Random Concept",
-        sec_framing: "Framing & Camera Angle",
-        sec_optics: "Lens & Sensor Gate",
-        sec_movement: "Camera Dynamic Physics",
-        sec_lighting: "Lighting & Color Grading",
-        sec_atmosphere: "Atmosphere & Weather",
-        motion_slider: "Motion Intensity:",
-        btn_generate: "Synthesize Director Prompt (-1 XTR)",
-        output_title: "Master Production Prompt",
-        copy_btn: "Copy",
-        copied: "Copied to clipboard!",
-        negative_title: "Strict Negative Prompt",
-        stars_modal_title: "Telegram Stars (XTR)",
-        stars_modal_sub: "Native in-app microcurrency",
-        stars_modal_desc: "Direct in-app billing without card checkout. 1 Star = 1 high-fidelity master director synthesis.",
-        close_btn: "Close",
-        desc_low_angle: "Looking upwards, conveys power, dominance and epic scale",
-        desc_macro: "Micro focus on textures: retina, cyber-optics, skin pores",
-        desc_wide: "Vast architectural framing establishing the entire scene",
-        desc_dutch: "Off-camber 15-degree tilt generating dramatic tension",
-        desc_anamorphic: "Cinematic horizontal blue streak flares and oval bokeh",
-        desc_arri: "Supreme surgical sharpness and true optical depth of field",
-        desc_leica: "Silky soft falloff with hyper-creamy skin rendering",
-        desc_grain: "Organic 16mm photochemical halide grain texture",
-        desc_dolly: "Silky forward camera push towards the focal subject",
-        desc_orbital: "360-degree continuous orbital wrap on 3-axis gimbal",
-        desc_fpv: "High-speed acrobatic drone dive skimming through barriers",
-        desc_vertigo: "Vertigo contra-zoom warping perspective depth",
-        desc_chiaroscuro: "Caravaggio-inspired 8:1 contrast with deep obsidian shadows",
-        desc_kodak: "Iconic warm Hollywood 3200K tungsten celluloid response",
-        desc_cyber: "Split cyan and magenta rim lights kissing subject contours",
-        desc_golden: "Warm 3200K sunset backlight casting organic lens blooms",
-        desc_godrays: "Heavy volumetric light shafts slicing dense atmospheric haze",
-        desc_rain: "Heavy downpour sheets with high-gloss mirror puddles",
-        desc_ash: "Floating fiery embers and toxic post-war particulate smog",
-        desc_cosmic: "Zero-G floating star-dust backlit by stellar glare"
+    viewport();
+    try {
+      tg.onEvent("viewportChanged", viewport);
+      if (tg.isVersionAtLeast?.("8.0")) {
+        tg.onEvent("safeAreaChanged", viewport);
+        tg.onEvent("contentSafeAreaChanged", viewport);
       }
+    } catch {}
+  }
+  function translate() {
+    document.documentElement.lang = state.lang;
+    document
+      .querySelectorAll("[data-i18n]")
+      .forEach((el) => (el.textContent = t(el.dataset.i18n)));
+    document
+      .querySelectorAll("[data-label]")
+      .forEach((el) => el.setAttribute("aria-label", t(el.dataset.label)));
+    document
+      .querySelectorAll("[data-lang]")
+      .forEach((el) =>
+        el.setAttribute("aria-pressed", String(el.dataset.lang === state.lang)),
+      );
+    $("modes").setAttribute("aria-label", t("modes"));
+  }
+  function renderModes() {
+    const nav = $("modes");
+    nav.replaceChildren();
+    for (const [key, mode] of Object.entries(modes)) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "mode-button";
+      b.dataset.mode = key;
+      b.setAttribute("aria-pressed", String(state.mode === key));
+      b.innerHTML = svg(mode.icon);
+      const text = document.createElement("span");
+      text.textContent = t(key);
+      b.append(text);
+      b.addEventListener("click", () => {
+        state.mode = key;
+        editing = false;
+        persist();
+        render();
+        haptic();
+      });
+      nav.append(b);
+    }
+  }
+  function setValue(id, value) {
+    state.drafts[state.mode].values[id] = value;
+    persist();
+  }
+  function renderField(f) {
+    const container = document.createElement("div");
+    container.className =
+      "field" +
+      (["choices", "range", "textarea"].includes(f.type) ? " wide" : "") +
+      (f.type === "select" && !["duration", "ratio"].includes(f.id)
+        ? " select-field"
+        : "");
+    const id = "field-" + f.id;
+    const label = document.createElement("label");
+    label.htmlFor = id;
+    label.textContent = t(f.label) + (f.required ? " *" : "");
+    container.append(label);
+    const value = state.drafts[state.mode].values[f.id];
+    let input;
+    if (f.type === "choices") {
+      label.removeAttribute("for");
+      label.id = id + "-label";
+      input = document.createElement("div");
+      input.className = "choice-grid";
+      input.setAttribute("role", "group");
+      input.setAttribute("aria-labelledby", label.id);
+      for (const o of f.options) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "choice";
+        b.textContent = t(o.label);
+        b.setAttribute("aria-pressed", String(o.id === value));
+        b.addEventListener("click", () => {
+          setValue(f.id, o.id);
+          input
+            .querySelectorAll("button")
+            .forEach((btn) =>
+              btn.setAttribute("aria-pressed", String(btn === b)),
+            );
+          haptic();
+        });
+        input.append(b);
+      }
+    } else if (f.type === "select") {
+      input = document.createElement("select");
+      for (const o of f.options) {
+        const opt = document.createElement("option");
+        opt.value = o.id;
+        opt.textContent = t(o.label);
+        input.append(opt);
+      }
+      input.value = value;
+      input.addEventListener("change", () => {
+        setValue(f.id, input.value);
+        haptic();
+      });
+    } else {
+      input = document.createElement(
+        f.type === "textarea" ? "textarea" : "input",
+      );
+      if (f.type === "range") {
+        input.type = "range";
+        input.min = "1";
+        input.max = "10";
+        input.step = "1";
+        label.className = "range-label";
+        const counter = document.createElement("output");
+        counter.value = value + " / 10";
+        label.append(counter);
+        input.addEventListener(
+          "input",
+          () => (counter.value = input.value + " / 10"),
+        );
+      } else {
+        input.maxLength = 6000;
+        if (f.type !== "textarea") input.type = "text";
+        input.placeholder = f.required
+          ? t(state.mode + ".example.0")
+          : f.id === "role"
+            ? t("rolePlaceholder")
+            : t("optional");
+        if (f.required) input.required = true;
+        if (f.type === "textarea") input.rows = f.required ? 4 : 2;
+      }
+      input.value = value;
+      input.addEventListener("input", () => {
+        input.setCustomValidity("");
+        setValue(f.id, input.value);
+      });
+    }
+    input.id = id;
+    container.append(input);
+    return container;
+  }
+  function renderFields() {
+    const mode = modes[state.mode];
+    $("mode-title").textContent = t(state.mode + "Title");
+    $("mode-hint").textContent = t(state.mode + "Hint");
+    $("brief-fields").replaceChildren();
+    $("settings-fields").replaceChildren();
+    for (const f of mode.fields) {
+      const brief = [
+        "scene",
+        "action",
+        "brief",
+        "topic",
+        "role",
+        "goal",
+        "context",
+        "constraints",
+      ].includes(f.id);
+      $(brief ? "brief-fields" : "settings-fields").append(renderField(f));
+    }
+    const target = $("target");
+    target.replaceChildren();
+    for (const value of [
+      ...(state.mode === "video" ? targetOptions.video : targetOptions.other),
+      "Any AI",
+    ]) {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = value === "Any AI" ? t("modelNeutral") : value;
+      target.append(opt);
+    }
+    target.value = state.drafts[state.mode].target;
+  }
+  function renderResult() {
+    const result = state.drafts[state.mode].result;
+    $("empty-result").hidden = !!result;
+    $("result-content").hidden = !result;
+    if (!result) return;
+    $("output").value = result.text;
+    $("output").readOnly = !editing;
+    $("edit").querySelector("[data-i18n]").textContent = t(
+      editing ? "done" : "edit",
+    );
+    $("result-badge").textContent =
+      t(state.mode) +
+      " · " +
+      (result.target === "Any AI" ? t("modelNeutral") : result.target) +
+      " · " +
+      result.lang.toUpperCase();
+    $("char-count").textContent =
+      result.text.length.toLocaleString(state.lang) + " " + t("chars");
+    $("copy").disabled = !result.text.trim();
+  }
+  function clearResult(id) {
+    for (const d of Object.values(state.drafts))
+      if (d.result?.id === id) d.result = null;
+  }
+  function renderHistory() {
+    const list = $("history-list");
+    list.replaceChildren();
+    $("history-count").textContent = state.history.length;
+    $("clear-history").disabled = !state.history.length;
+    if (!state.history.length) {
+      const p = document.createElement("p");
+      p.className = "history-empty";
+      p.textContent = t("emptyHistory");
+      list.append(p);
+      return;
+    }
+    for (const item of state.history) {
+      const row = document.createElement("div");
+      row.className = "history-item";
+      const open = document.createElement("button");
+      open.type = "button";
+      open.className = "history-open";
+      const title = document.createElement("strong");
+      const briefLabel =
+        dictionary[modes[item.mode].fields.find((f) => f.required).label][
+          item.lang
+        ] + ": ";
+      title.textContent =
+        item.text
+          .split("\n")
+          .find((line) => line.startsWith(briefLabel))
+          ?.slice(briefLabel.length) ||
+        item.text.split("\n").find((line) => line.trim()) ||
+        t("result");
+      const meta = document.createElement("small");
+      meta.textContent =
+        t(item.mode) +
+        " · " +
+        new Date(item.date).toLocaleString(state.lang, {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      open.append(title, meta);
+      open.addEventListener("click", () => {
+        state.mode = item.mode;
+        state.drafts[item.mode].result = {
+          id: item.id,
+          text: item.text,
+          lang: item.lang,
+          target: item.target,
+        };
+        editing = false;
+        persist();
+        render();
+        scrollResult();
+      });
+      const del = document.createElement("button");
+      del.type = "button";
+      del.className = "icon-button";
+      del.setAttribute(
+        "aria-label",
+        t("delete") + ": " + title.textContent.slice(0, 65),
+      );
+      del.innerHTML = svg("trash");
+      del.addEventListener("click", () => {
+        const index = state.history.findIndex((x) => x.id === item.id);
+        state.history = state.history.filter((x) => x.id !== item.id);
+        clearResult(item.id);
+        persist();
+        renderResult();
+        renderHistory();
+        const next =
+          $("history-list").querySelectorAll(".icon-button")[
+            Math.min(index, state.history.length - 1)
+          ];
+        (next || $("generate")).focus({ preventScroll: true });
+        toast(t("deleted"));
+      });
+      row.append(open, del);
+      list.append(row);
+    }
+  }
+  function render() {
+    translate();
+    renderModes();
+    renderFields();
+    renderResult();
+    renderHistory();
+    if (!reduceMotion())
+      document.querySelectorAll(".mode-panel").forEach((panel, i) => {
+        panel.getAnimations().forEach((a) => a.cancel());
+        panel.animate(
+          [
+            { opacity: 0, transform: "translateY(6px)" },
+            { opacity: 1, transform: "translateY(0)" },
+          ],
+          { duration: 220, delay: i * 35 },
+        );
+      });
+  }
+  const value = (id) => {
+    const f = modes[state.mode].fields.find((x) => x.id === id),
+      v = state.drafts[state.mode].values[id];
+    return f?.options
+      ? t(f.options.find((o) => o.id === v).label)
+      : (v || "").trim();
+  };
+  const line = (id) => t("field." + id) + ": " + value(id);
+  const lines = (ids) =>
+    ids
+      .filter((id) => value(id))
+      .map(line)
+      .join("\n");
+  const localized = (ru, en) => (state.lang === "ru" ? ru : en);
+  // Templates produce instructions, never simulated answers or model command flags.
+  const templates = {
+    video: () => {
+      const seconds = Number(value("duration").match(/\d+/)?.[0] || 5),
+        a = +(seconds / 3).toFixed(1),
+        b = +((seconds * 2) / 3).toFixed(1);
+      const scene = value("scene"),
+        action =
+          value("action") ||
+          localized(
+            "Главный объект естественно взаимодействует с окружением.",
+            "The main subject interacts naturally with the environment.",
+          );
+      return [
+        localized(
+          "Создай видео по следующему режиссёрскому описанию.",
+          "Create a video based on the following director’s brief.",
+        ),
+        lines([
+          "scene",
+          "action",
+          "framing",
+          "optics",
+          "movement",
+          "lighting",
+          "atmosphere",
+          "duration",
+          "ratio",
+        ]),
+        line("motion") +
+          "/10 — " +
+          localized(
+            "желаемая выразительность движения.",
+            "desired movement intensity.",
+          ),
+        `${t("stage1")} · 0–${a} ${localized("с", "s")}\n${localized("Покажи исходную сцену:", "Establish the scene:")} ${scene} ${localized("Обозначь расположение главного объекта и окружение.", "Show the main subject’s position and surroundings.")}`,
+        `${t("stage2")} · ${a}–${b} ${localized("с", "s")}\n${action} ${localized("Развивай действие, используя движение камеры:", "Develop the action using this camera movement:")} ${value("movement")}.`,
+        `${t("stage3")} · ${b}–${seconds} ${localized("с", "s")}\n${localized("Заверши действие в рамках описанной сцены, удержи финальный акцент на главном объекте. Сохрани его внешность, пространственную связность и непрерывность освещения.", "Resolve the action within the described scene and hold the final emphasis on the main subject. Preserve appearance, spatial coherence and lighting continuity.")}`,
+        `${t("negative")}\n${value("negative") || localized("Размытые детали, искажённая анатомия, мерцание, скачки формы, водяные знаки, нежелательный текст.", "Blurry details, distorted anatomy, flicker, morphing artifacts, watermarks, unwanted text.")}`,
+        t("naturalSettings"),
+      ].join("\n\n");
+    },
+    games: () => {
+      const tasks = {
+        idea: pair(
+          "Предложи 3 разные концепции. Для каждой опиши игровой цикл, отличительную черту и минимальный прототип.",
+          "Propose 3 distinct concepts. Describe each core loop, distinguishing feature and minimum prototype.",
+        ),
+        mechanics: pair(
+          "Разработай механику: правила, действия игрока, обратная связь, прогрессия, баланс и способ проверить её прототипом.",
+          "Design a mechanic: rules, player actions, feedback, progression, balance and a prototype test.",
+        ),
+        characters: pair(
+          "Создай персонажей: роль в игре, мотивация, конфликт, способности, ограничения и визуальное описание.",
+          "Create characters: game role, motivation, conflict, abilities, limitations and visual description.",
+        ),
+        world: pair(
+          "Разработай мир: основные правила, локации, фракции, история, ресурсы и связь окружения с механиками.",
+          "Develop a world: core rules, locations, factions, history, resources and links between the environment and mechanics.",
+        ),
+        quest: pair(
+          "Напиши квест: завязка, цели, этапы, выборы игрока, последствия, награды и условия успеха или провала.",
+          "Write a quest: hook, objectives, stages, player choices, consequences, rewards and success or failure conditions.",
+        ),
+        dialogue: pair(
+          "Создай ветвящийся диалог: участники, мотивации, реплики, варианты выбора, условия переходов и влияние на игру.",
+          "Create a branching dialogue: participants, motives, lines, choices, transition conditions and effects on the game.",
+        ),
+        development: pair(
+          "Подготовь задание разработчику: требования, границы задачи, компоненты, данные, этапы, критерии приёмки и тестовые сценарии. API и зависимости проверяй по документации; укажи допущения.",
+          "Prepare a development brief: requirements, scope, components, data, milestones, acceptance criteria and test cases. Verify APIs and dependencies against documentation; state assumptions.",
+        ),
+      };
+      return [
+        localized(
+          "Выступи в роли геймдизайнера и разработчика игр.",
+          "Act as a game designer and developer.",
+        ),
+        lines([
+          "brief",
+          "kind",
+          "genre",
+          "platform",
+          "style",
+          "engine",
+          "scope",
+        ]),
+        tasks[state.drafts.games.values.kind][state.lang],
+        localized(
+          "Соразмерь решение с платформой, движком и масштабом проекта. Отдели обязательный минимум от возможных улучшений. Укажи риски и следующий практический шаг.",
+          "Fit the solution to the platform, engine and project scope. Separate the essential minimum from optional improvements. Identify risks and the next practical step.",
+        ),
+        t("noInvent"),
+      ].join("\n\n");
+    },
+    chat: () => {
+      const tasks = {
+        discussion: pair(
+          "Предложи несколько точек зрения и начни обсуждение с одного открытого вопроса.",
+          "Offer several perspectives and begin the discussion with one open question.",
+        ),
+        brainstorm: pair(
+          "Предложи 8 разных идей, затем помоги выбрать перспективные по понятным критериям.",
+          "Suggest 8 varied ideas, then help select promising ones using clear criteria.",
+        ),
+        explain: pair(
+          "Объясни тему от простого к сложному, приведи понятный пример и проверь понимание одним вопросом.",
+          "Explain the topic from simple to complex, give an accessible example and check understanding with one question.",
+        ),
+        roleplay: pair(
+          "Предложи ситуацию для ролевого диалога и произнеси первую реплику своей роли. Не отвечай за меня; дождись моего ответа.",
+          "Propose a role-play scenario and give your role’s first line. Do not speak for me; wait for my response.",
+        ),
+      };
+      return [
+        localized(
+          "Проведи со мной диалог на следующую тему.",
+          "Have a conversation with me about the following topic.",
+        ),
+        lines(["topic", "role", "kindChat", "tone", "detail"]),
+        tasks[state.drafts.chat.values.kindChat][state.lang],
+        localized(
+          "Учитывай мой контекст, сохраняй выбранные тон и подробность.",
+          "Respect my context and the chosen tone and detail level.",
+        ),
+        t("noInvent"),
+      ].join("\n\n");
+    },
+    universal: () => {
+      const tasks = {
+        writing: pair(
+          "Учитывай аудиторию и цель текста. Используй ясный язык и логичную структуру.",
+          "Consider the audience and purpose. Use clear language and a logical structure.",
+        ),
+        learning: pair(
+          "Учти начальный уровень. Добавь практику, критерии понимания и порядок изучения.",
+          "Account for the starting level. Include practice, understanding checks and a learning sequence.",
+        ),
+        coding: pair(
+          "Предложи решение для указанного окружения. Объясни зависимости, обработку ошибок и способ проверки. Не выдумывай API.",
+          "Provide a solution for the stated environment. Explain dependencies, error handling and validation. Do not invent APIs.",
+        ),
+        other: pair(
+          "Предложи применимый результат, явно обозначь допущения и способ проверить качество.",
+          "Provide an actionable result, explicitly state assumptions and how to assess quality.",
+        ),
+      };
+      return [
+        localized(
+          "Выполни задачу по следующему брифу.",
+          "Complete the task using the following brief.",
+        ),
+        lines(["goal", "context", "constraints", "taskType", "format"]),
+        tasks[state.drafts.universal.values.taskType][state.lang],
+        t("noInvent"),
+      ].join("\n\n");
+    },
+  };
+  function scrollResult() {
+    $("result-panel").scrollIntoView({
+      behavior: reduceMotion() ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+  function generate(event) {
+    event.preventDefault();
+    const required = modes[state.mode].fields.find((f) => f.required),
+      input = $("field-" + required.id);
+    if (!value(required.id)) {
+      input.setCustomValidity(t("required"));
+      input.reportValidity();
+      input.focus();
+      toast(t("required"));
+      return;
+    }
+    const draft = state.drafts[state.mode];
+    const text = [
+      templates[state.mode](),
+      t("model") +
+        ": " +
+        (draft.target === "Any AI" ? t("modelNeutral") : draft.target),
+      t("responseLanguage"),
+    ].join("\n\n");
+    const item = {
+      id:
+        globalThis.crypto?.randomUUID?.() ||
+        Date.now() + "-" + Math.random().toString(36).slice(2),
+      text,
+      mode: state.mode,
+      target: draft.target,
+      lang: state.lang,
+      date: Date.now(),
     };
-
-    function setLang(lang) {
-      currentLang = lang;
-      document.getElementById('langRU').className = lang === 'RU' ? 'px-2.5 py-1 rounded-lg bg-white/20 text-white transition-all' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition-all';
-      document.getElementById('langEN').className = lang === 'EN' ? 'px-2.5 py-1 rounded-lg bg-white/20 text-white transition-all' : 'px-2.5 py-1 rounded-lg text-zinc-400 hover:text-white transition-all';
-      
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dictionary[lang][key]) {
-          el.innerText = dictionary[lang][key];
-        }
-      });
-      document.getElementById('subHeader').innerText = dictionary[lang].subHeader;
+    draft.result = { id: item.id, text, lang: item.lang, target: item.target };
+    state.history.unshift(item);
+    state.history = state.history.slice(0, 30);
+    editing = false;
+    persist();
+    renderResult();
+    renderHistory();
+    $("result-panel").classList.remove("result-pop");
+    void $("result-panel").offsetWidth;
+    $("result-panel").classList.add("result-pop");
+    scrollResult();
+    toast(t("created"));
+    haptic("success");
+  }
+  async function copy() {
+    const text = $("output").value;
+    if (!text.trim()) return;
+    let success = false;
+    try {
+      await navigator.clipboard.writeText(text);
+      success = true;
+    } catch {
+      const el = $("output");
+      el.focus();
+      el.select();
+      el.setSelectionRange(0, text.length);
+      try {
+        success = document.execCommand("copy");
+      } catch {}
     }
-
-    function selectEngine(eng) {
-      currentEngine = eng;
-      document.querySelectorAll('.engine-btn').forEach(btn => {
-        if (btn.getAttribute('data-engine') === eng) {
-          btn.className = 'engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all bg-white/20 text-white shadow-sm ring-1 ring-white/20';
-        } else {
-          btn.className = 'engine-btn py-2 px-2 rounded-xl text-xs font-medium text-center transition-all text-zinc-400 hover:text-white';
-        }
-      });
+    toast(t(success ? "copied" : "copyFailed"));
+    if (success) haptic("success");
+  }
+  $("prompt-form").addEventListener("submit", generate);
+  document.querySelectorAll("[data-lang]").forEach((b) =>
+    b.addEventListener("click", () => {
+      state.lang = b.dataset.lang;
+      $("toast").classList.remove("visible");
+      persist();
+      render();
+      haptic();
+    }),
+  );
+  $("target").addEventListener("change", (e) => {
+    state.drafts[state.mode].target = e.target.value;
+    persist();
+    haptic();
+  });
+  $("random").addEventListener("click", () => {
+    const f = modes[state.mode].fields.find((f) => f.required),
+      current = value(f.id),
+      choices = examples[state.mode]
+        .map((_, i) => t(state.mode + ".example." + i))
+        .filter((s) => s !== current);
+    const example = choices[Math.floor(Math.random() * choices.length)];
+    setValue(f.id, example);
+    $("field-" + f.id).value = example;
+    $("field-" + f.id).setCustomValidity("");
+    haptic();
+  });
+  $("copy").addEventListener("click", copy);
+  $("edit").addEventListener("click", () => {
+    editing = !editing;
+    renderResult();
+    if (editing) $("output").focus();
+    haptic();
+  });
+  $("output").addEventListener("input", () => {
+    const r = state.drafts[state.mode].result;
+    if (!r) return;
+    r.text = $("output").value;
+    const existing = state.history.find((i) => i.id === r.id);
+    if (existing) existing.text = r.text;
+    else {
+      state.history.unshift({ ...r, mode: state.mode, date: Date.now() });
+      state.history = state.history.slice(0, 30);
     }
+    persist();
+    $("char-count").textContent =
+      r.text.length.toLocaleString(state.lang) + " " + t("chars");
+    $("copy").disabled = !r.text.trim();
+    renderHistory();
+  });
+  $("stars-open").addEventListener("click", () => {
+    $("stars-dialog").showModal();
+    haptic();
+  });
+  $("stars-close").addEventListener("click", () => $("stars-dialog").close());
+  $("clear-history").addEventListener("click", () =>
+    $("confirm-dialog").showModal(),
+  );
+  $("cancel-clear").addEventListener("click", () =>
+    $("confirm-dialog").close(),
+  );
+  $("confirm-clear").addEventListener("click", () => {
+    state.history = [];
+    Object.values(state.drafts).forEach((d) => (d.result = null));
+    persist();
+    renderResult();
+    renderHistory();
+    $("confirm-dialog").close();
+    $("generate").focus({ preventScroll: true });
+    toast(t("cleared"));
+  });
+  for (const dialog of document.querySelectorAll("dialog"))
+    dialog.addEventListener("click", (e) => {
+      if (e.target !== dialog) return;
+      const r = dialog.getBoundingClientRect();
+      if (
+        e.clientX < r.left ||
+        e.clientX > r.right ||
+        e.clientY < r.top ||
+        e.clientY > r.bottom
+      )
+        dialog.close();
+    });
+  document
+    .querySelectorAll("[data-icon]")
+    .forEach((el) => (el.innerHTML = svg(el.dataset.icon)));
+  if (
+    !CSS.supports("backdrop-filter", "blur(1px)") &&
+    !CSS.supports("-webkit-backdrop-filter", "blur(1px)")
+  )
+    document.documentElement.classList.add("simple-glass");
+  function boot() {
+    tg = window.Telegram?.WebApp;
+    initTelegram();
+    render();
+    if (storageFailed) toast(t("storageError"));
+  }
+  if (document.readyState === "loading")
+    window.addEventListener("DOMContentLoaded", boot, { once: true });
+  else boot();
+})();
 
-    function toggleCard(el, category) {
-      const parent = document.getElementById('group-' + category);
-      parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-      selections[category] = el.getAttribute('data-value');
-    }
-
-    function updateMotion(val) {
-      selections.motion = val;
-      document.getElementById('motionVal').innerText = val + ' / 10';
-    }
-
-    const randomScenes = [
-      "Кибер-наемник в неоновом дождевике перезаряжает плазменную винтовку на крыше небоскреба",
-      "Огромный робот-страж дремлет в руинах древнего храма, поросшего мхом и светящимися грибами",
-      "Девушка в винтажном шлеме мчится на ховербайке по бесконечному зеркальному солончаку на закате",
-      "Космический инженер проводит диагностику ядерного реактора в открытом космосе во время метеоритного дождя"
-    ];
-
-    function randomizePrompt() {
-      const random = randomScenes[Math.floor(Math.random() * randomScenes.length)];
-      document.getElementById('promptSubject').value = random;
-    }
-
-    function generatePrompt() {
-      if (balance <= 0) {
-        openStarsModal();
-        return;
-      }
-
-      balance -= 1;
-      document.getElementById('starsBalance').innerText = balance;
-
-      // Haptic feedback in Telegram
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-      }
-
-      const subject = document.getElementById('promptSubject').value.trim() || "An enigmatic cinematic protagonist walking through atmospheric haze";
-      
-      let engineTags = "";
-      if (currentEngine === 'kling') engineTags = "--kling 1.5 --motion " + selections.motion + " --cfg 0.65 --camera dynamic";
-      else if (currentEngine === 'runway') engineTags = "--gen3 --motion-brush 6 --fps 60 --ar 16:9";
-      else if (currentEngine === 'flux') engineTags = "--flux-pro --raw --dof high --v 1.1";
-      else if (currentEngine === 'sora') engineTags = "--sora --temporal-consistency 1.0 --photoreal";
-      else if (currentEngine === 'luma') engineTags = "--luma-ray2 --volumetric-light true";
-      else if (currentEngine === 'midjourney') engineTags = "--v 6.1 --style raw --ar 16:9 --stylize 250";
-
-      const master = `Cinematic master shot, ${selections.framing}, ${selections.optics}. ${subject}. Dynamic camera execution: ${selections.movement} with motion intensity factor ${selections.motion}/10. Lighting setup: ${selections.lighting}. Environmental atmosphere: ${selections.weather}. Master color grade, photochemical texture, hyper-realistic optical fidelity, Arri Alexa 65 sensor quality ${engineTags}`;
-
-      document.getElementById('masterPromptText').innerText = master;
-      
-      // Auto scroll to result smoothly
-      document.getElementById('outputConsole').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function copyOutput() {
-      const text = document.getElementById('masterPromptText').innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        if (window.Telegram?.WebApp?.HapticFeedback) {
-          window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-        }
-        const copyBtn = document.getElementById('copyBtn');
-        const orig = copyBtn.innerHTML;
-        copyBtn.innerHTML = `<span class="text-emerald-400">✓ ${dictionary[currentLang].copied}</span>`;
-        setTimeout(() => { copyBtn.innerHTML = orig; }, 2000);
-      });
-    }
-
-    function openStarsModal() {
-      document.getElementById('starsModal').classList.remove('hidden');
-    }
-
-    function closeStarsModal() {
-      document.getElementById('starsModal').classList.add('hidden');
-    }
-
-    function topUpStars(amount) {
-      balance += amount;
-      document.getElementById('starsBalance').innerText = balance;
-      closeStarsModal();
-      if (window.Telegram?.WebApp?.HapticFeedback) {
-        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-      }
-      alert(`Начислено +${amount} XTR! Новый баланс: ${balance} звезд.`);
-    }
-
-    // Initialize Telegram WebApp viewport
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-    }
-  </script>
+</script>
 </body>
 </html>
